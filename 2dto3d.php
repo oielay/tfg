@@ -112,6 +112,8 @@ function generate_3d_content($data, $is_category = false, $is_tag = false) {
 
         exit;
     }
+
+    $current_option = isset($_GET['interaction']) ? $_GET['interaction'] : get_post_meta(get_the_ID(), '_myplugin_menu_option', true);
 ?>
 
     <!DOCTYPE html>
@@ -135,8 +137,9 @@ function generate_3d_content($data, $is_category = false, $is_tag = false) {
                     }
                 }
             </script>
-            <script type="module" src="<?php echo plugin_dir_url(__FILE__) . 'assets/js/3d-menu.js'; ?>" defer></script>
             <link rel="stylesheet" href="<?php echo plugin_dir_url(__FILE__) . 'assets/css/style.css'; ?>">
+            <script type="module" src="<?php echo plugin_dir_url(__FILE__) . 'assets/js/3d-menu.js'; ?>" defer></script>
+
         </head>
         <body>
             <div class="hist-nav-buttons">
@@ -153,6 +156,35 @@ function generate_3d_content($data, $is_category = false, $is_tag = false) {
                         FORWARD
                 </button>
             </div>
+
+            <div id="myMenu" class="menu-container">
+                <form method="get">
+                    <input type="hidden" name="3Denabled" value="true">
+                    <label for="interaction""><?php _e('Elige el método de interacción:', 'myplugin'); ?></label>
+                    <select name="interaction" id="interaction" onchange="this.form.submit()">
+                        <option value="orbitControls" <?php selected($current_option, 'orbitControls'); ?>>Orbit controls</option>
+                        <option value="deviceOrientationControls" <?php selected($current_option, 'deviceOrientationControls'); ?>>Device Orientation Controls</option>
+                    </select>
+                </form>
+            </div>
+
+            <button id="menubtn" class="menubtn">&#9776; Open Menu</button>
+
+            <div id="move-buttons" class="move-buttons">
+                <button 
+                    id="move-forward"
+                    class="move-button"
+                >
+                    &uarr;
+                </button>
+                <button
+                    id="move-backward"
+                    class="move-button"
+                >
+                    &darr;
+                </button>
+            </div>
+
 <?php
             switch ($_GET['3Dtype']) {
                 case 'armoire':
@@ -175,22 +207,7 @@ function generate_3d_content($data, $is_category = false, $is_tag = false) {
                     break;
             }
 
-            $current_option = isset($_GET['interaction']) ? $_GET['interaction'] : get_post_meta(get_the_ID(), '_myplugin_menu_option', true);
-
-    ?>
-
-            <div id="myMenu" class="menu-container">
-                <form method="get">
-                    <input type="hidden" name="3Denabled" value="true">
-                    <label for="interaction""><?php _e('Elige el método de interacción:', 'myplugin'); ?></label>
-                    <select name="interaction" id="interaction" onchange="this.form.submit()">
-                        <option value="orbitControls" <?php selected($current_option, 'orbitControls'); ?>>Orbit controls</option>
-                        <option value="deviceOrientationControls" <?php selected($current_option, 'deviceOrientationControls'); ?>>Device Orientation Controls</option>
-                    </select>
-                </form>
-            </div>
-
-            <button id="menubtn" class="menubtn">&#9776; Open Menu</button>
+?>
         </body>
     </html>
 <?php

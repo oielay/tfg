@@ -8,6 +8,7 @@ import { BoxLineGeometry } from 'three/addons/jsm/geometries/BoxLineGeometry.js'
 
 let scene, camera, renderer, controls;
 let objsToIntersect = [], objsToOverflow = [];
+let moveForward = false, moveBackward = false;
 
 // Obtain content from wordpress page
 
@@ -29,6 +30,13 @@ const CAPTION_HEIGHT = 0.075;
 const CAPTION_WIDTH = 0.375;
 const MARGIN = 0.025;
 const PADDING = 0.025;
+
+// Set font
+
+// const fontTexture = 'https://oierlayana.com/tfg/wp-content/uploads/fonts/Roboto-msdf.png';
+// const fontJSON = 'https://oierlayana.com/tfg/wp-content/uploads/fonts/Roboto-msdf.json';
+const fontTexture = 'http://localhost/wordpress/wp-content/uploads/fonts/Roboto-msdf.png';
+const fontJSON = 'http://localhost/wordpress/wp-content/uploads/fonts/Roboto-msdf.json';
 
 // Interaction and listeners
 
@@ -104,25 +112,31 @@ function init() {
     scene.add(room);
     objsToIntersect.push(roomMesh);
 
-    // ORBIT CONTROLS FOR NO-VR
+    // ORBIT CONTROLS
 
     controls = new OrbitControls(camera, renderer.domElement);
     camera.position.set(0, 3.4, 1);
     controls.target = new THREE.Vector3(0, 2.6, -1.8);
 
-    // GYROSCOPE CONTROLS FOR VR
+    // DEVICE ORIENTATION CONTROLS
 
-    window.addEventListener('deviceorientation', function (event) {
-        const alpha = event.alpha ? THREE.MathUtils.degToRad(event.alpha) : 0;
-        const beta = event.beta ? THREE.MathUtils.degToRad(event.beta) : 0;
-        const gamma = event.gamma ? THREE.MathUtils.degToRad(event.gamma) : 0;
+    let interactionType = window.location.search.substring(1).split("&").find(param => param.includes('interaction='));
 
-        const quaternion = new THREE.Quaternion();
-        //quaternion.setFromEuler(new THREE.Euler(beta, alpha, -gamma, 'YXZ'));
+    if (interactionType.split('=')[1] === 'deviceOrientationControls') {
+        // window.addEventListener('deviceorientation', function (event) {
+        //     const alpha = event.alpha ? THREE.MathUtils.degToRad(event.alpha) : 0;
+        //     const beta = event.beta ? THREE.MathUtils.degToRad(event.beta) : 0;
+        //     const gamma = event.gamma ? THREE.MathUtils.degToRad(event.gamma) : 0;
 
-        // // Apply the quaternion to the scene
-        //camera.rotation.set(quaternion.x, quaternion.y, quaternion.z, quaternion.w);
-    }, true);
+        //     const quaternion = new THREE.Quaternion();
+        //     //quaternion.setFromEuler(new THREE.Euler(beta, alpha, -gamma, 'YXZ'));
+
+        //     // // Apply the quaternion to the scene
+        //     //camera.rotation.set(quaternion.x, quaternion.y, quaternion.z, quaternion.w);
+        // }, true);
+
+        createMovingControls();
+    }
 
     // TEXT PANELS FOR CONTENT
     
@@ -138,10 +152,8 @@ function makeTextPanel(content, title) {
     const container = new ThreeMeshUI.Block({
         ref: 'container',
         padding: PADDING,
-        // fontFamily: 'https://oierlayana.com/tfg/wp-content/uploads/fonts/Roboto-msdf.json',
-        // fontTexture: 'https://oierlayana.com/tfg/wp-content/uploads/fonts/Roboto-msdf.png',
-        fontFamily: 'http://localhost/wordpress/wp-content/uploads/fonts/Roboto-msdf.json',
-        fontTexture: 'http://localhost/wordpress/wp-content/uploads/fonts/Roboto-msdf.png',
+        fontFamily: fontJSON,
+        fontTexture: fontTexture,
         fontColor: new THREE.Color(0xffffff),
         backgroundOpacity: 0,
     });
@@ -497,6 +509,8 @@ function loop() {
 
     updateClickables();
     updateOverflows();
+
+    moveCamera();
 }
 
 //
@@ -769,8 +783,8 @@ function mostrarCompradoOLike(text) {
         justifyContent: 'center',
         alignItems: 'center',
         contentDirection: 'row',
-        fontFamily: 'http://localhost/wordpress/wp-content/uploads/fonts/Roboto-msdf.json',
-        fontTexture: 'http://localhost/wordpress/wp-content/uploads/fonts/Roboto-msdf.png',
+        fontFamily: fontJSON,
+        fontTexture: fontTexture,
     });
 
     notificationBlock.position.set(0, 3, -1);
@@ -788,6 +802,12 @@ function mostrarCompradoOLike(text) {
         });
     });
 
+    // new THREE.TextureLoader().load('https://oierlayana.com/tfg/wp-content/uploads/' + imagen + '.png', (texture) => {
+    //     notificationImage.set({
+    //         backgroundTexture: texture,
+    //     });
+    // });
+
     notificationBlock.add(notificationImage);
 
     const notificationText = new ThreeMeshUI.Text({
@@ -803,4 +823,41 @@ function mostrarCompradoOLike(text) {
     setTimeout(() => {
         scene.remove(notificationBlock);
     }, 3000);
+}
+
+function createMovingControls() {
+    let moveButtons = document.getElementById('move-buttons');
+    moveButtons.style.display = 'flex';
+
+    let forwardButton = document.getElementById('move-forward');
+    let backwardButton = document.getElementById('move-backward');
+
+    forwardButton.addEventListener('mousedown', () => {
+        moveForward = true;
+    });
+
+    forwardButton.addEventListener('mouseup', () => {
+        moveForward = false;
+    });
+
+    backwardButton.addEventListener('mousedown', () => {
+        moveBackward = true;
+    });
+
+    backwardButton.addEventListener('mouseup', () => {
+        moveBackward = false;
+    });
+}
+
+function moveCamera() {
+    const direction = new THREE.Vector3();
+    camera.getWorldDirection(direction);
+
+    if (moveForward) {
+        camera.position.addScaledVector(direction, 0.02);
+    }
+
+    if (moveBackward) {
+        camera.position.addScaledVector(direction, -0.02);
+    }
 }

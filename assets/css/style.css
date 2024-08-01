@@ -5,6 +5,8 @@ html, body {
     width: 100%;
 }
 
+/************ NAV BUTTONS ************/
+
 .hist-nav-buttons {
     width: 100%;
     display: flex;
@@ -35,6 +37,8 @@ html, body {
 .nav-button:hover {
     opacity: 1;
 }
+
+/************ MENU ************/
 
 .menu-container {
     display: none;
@@ -90,4 +94,30 @@ select {
     box-sizing: border-box;
     font-size: 16px;
     align-self: center;
+}
+
+/************ MOVE BUTTONS ************/
+
+.move-buttons {
+    width: 100%;
+    display: none;
+    justify-content: space-around;
+    align-items: center;
+    position: fixed;
+    margin-bottom: 3%;
+    gap: 50%;
+    bottom: 0;
+}
+
+.move-button {
+    width: 5%;
+    aspect-ratio: 1/1;
+    border-radius: 50%;
+    background-color: #333;
+    color: white;
+    font-size: 48px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
 }
