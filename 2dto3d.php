@@ -173,13 +173,13 @@ function generate_3d_content($data, $is_category = false, $is_tag = false) {
             <div id="move-buttons" class="move-buttons">
                 <button 
                     id="move-forward"
-                    class="move-button"
+                    class="move-button unselectable"
                 >
                     &uarr;
                 </button>
                 <button
                     id="move-backward"
-                    class="move-button"
+                    class="move-button unselectable"
                 >
                     &darr;
                 </button>
