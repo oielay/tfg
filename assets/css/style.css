@@ -110,7 +110,7 @@ select {
 }
 
 .move-button {
-    width: 5%;
+    width: 5rem;
     aspect-ratio: 1/1;
     border-radius: 50%;
     background-color: #333;
