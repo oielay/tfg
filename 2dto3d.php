@@ -144,13 +144,13 @@ function generate_3d_content($data, $is_category = false, $is_tag = false) {
         <body>
             <div class="hist-nav-buttons">
                 <button 
-                    class="nav-button"
+                    class="nav-button unselectable"
                     onClick="window.history.back();"
                 >
                         BACK
                 </button>
                 <button 
-                    class="nav-button"
+                    class="nav-button unselectable"
                     onClick="window.history.forward();"
                 >
                         FORWARD
@@ -168,7 +168,7 @@ function generate_3d_content($data, $is_category = false, $is_tag = false) {
                 </form>
             </div>
 
-            <button id="menubtn" class="menubtn">&#9776; Open Menu</button>
+            <button id="menubtn" class="menubtn unselectable">&#9776; Open Menu</button>
 
             <div id="move-buttons" class="move-buttons">
                 <button 
