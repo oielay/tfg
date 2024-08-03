@@ -274,7 +274,7 @@ function myplugin_add_default_url_params() {
 
     if (is_singular()) {
         $params['3Dtype'] = 'pointAndClick';
-        $params['interaction'] = get_post_meta(get_the_ID(), '_myplugin_menu_option', true);
+        $params['interaction'] = get_post_meta(get_the_ID(), '_myplugin_menu_option', true) ?: 'orbitControls';
     } elseif (is_category() || is_tag()) {
         $params['3Dtype'] = 'armoire';
         $params['interaction'] = 'orbitControls';
