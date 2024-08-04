@@ -251,8 +251,8 @@ function makeTextPanel(content, title) {
                         })
                     );
 
-                    caption1 = addStatesLinks(caption1, links[i]);
-                    caption2 = addStatesLinks(caption2, links[i + 1]);
+                    caption1 = addStatesLinks(caption1, links[i], title);
+                    caption2 = addStatesLinks(caption2, links[i + 1], title);
 
                     captionsSubBlock.add(caption1);
                     captionsSubBlock.add(caption2);
@@ -280,7 +280,7 @@ function makeTextPanel(content, title) {
                     })
                 );
 
-                extraCaption = addStatesLinks(extraCaption, links[numLinks - 1]);
+                extraCaption = addStatesLinks(extraCaption, links[numLinks - 1], title);
 
                 captionsBlock.add(extraCaption);
 
@@ -346,7 +346,7 @@ function makeTextPanel(content, title) {
                         })
                     );
 
-                    caption = addStatesLinks(caption, textItem);
+                    caption = addStatesLinks(caption, textItem, title);
 
                     objsToIntersect.push(caption);
 
@@ -604,7 +604,7 @@ function addStatesButtons(button, name) {
 }
 */
 
-function addStatesLinks(link, item) {
+function addStatesLinks(link, item, title) {
     link.setupState({
         state: 'selected',
         attributes: {
@@ -615,7 +615,7 @@ function addStatesLinks(link, item) {
             if (item.value !== 'No href')
                 window.open(item.value, '_self');
             else
-                mostrarCompradoOLike(item.text);
+                mostrarCompradoOLike(item.text, title);
         }
     });
 
@@ -748,58 +748,28 @@ function raycast(list) {
 
 }
 
-function mostrarCompradoOLike(text) {
+function mostrarCompradoOLike(text, title) {
     let texto, imagen;
 
     if (text === 'Comprar') {
-        texto = 'Se ha comprado el producto';
+        texto = 'Se ha comprado el producto ' + title;
         imagen = 'shopping-cart';
     } else {
-        texto = 'Se ha dado like a la publicación';
+        texto = 'Se ha dado like a la publicación ' + title;
         imagen = 'like';
     }
 
-    const notificationBlock = new ThreeMeshUI.Block({
-        width: 0.85,
-        height: 0.1,
-        backgroundOpacity: 0.8,
-        backgroundColor: new THREE.Color(0x00FF00),
-        justifyContent: 'center',
-        alignItems: 'center',
-        contentDirection: 'row',
-        fontFamily: fontJSON,
-        fontTexture: fontTexture,
-    });
+    let notification = document.getElementById('notification');
+    notification.style.display = 'flex';
 
-    notificationBlock.position.set(0, 3, -1);
-    notificationBlock.rotation.x = -0.55;
+    let notificationText = document.getElementById('notification-text');
+    notificationText.textContent = texto;
 
-    const notificationImage = new ThreeMeshUI.InlineBlock({
-        height: 0.05,
-        width: 0.07,    
-        justifyContent: 'center',
-    });
-
-    new THREE.TextureLoader().load('https://oierlayana.com/tfg/wp-content/uploads/' + imagen + '.png', (texture) => {
-        notificationImage.set({
-            backgroundTexture: texture,
-        });
-    });
-
-    notificationBlock.add(notificationImage);
-
-    const notificationText = new ThreeMeshUI.Text({
-        content: normalizeText('  ' + texto),
-        fontSize: 0.05,
-        fontColor: new THREE.Color(0x000000),
-    });
-
-    notificationBlock.add(notificationText);
-
-    scene.add(notificationBlock);
+    let notificationImage = document.getElementById('notification-image');
+    notificationImage.src = 'https://oierlayana.com/tfg/wp-content/uploads/' + imagen + '.png';
 
     setTimeout(() => {
-        scene.remove(notificationBlock);
+        notification.style.display = 'none';
     }, 3000);
 }
 
