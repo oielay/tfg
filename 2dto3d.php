@@ -160,7 +160,7 @@ function generate_3d_content($data, $is_category = false, $is_tag = false) {
             <div id="myMenu" class="menu-container">
                 <form method="get">
                     <input type="hidden" name="3Denabled" value="true">
-                    <label for="interaction""><?php _e('Elige el método de interacción:', 'myplugin'); ?></label>
+                    <label for="interaction"><?php _e('Elige el método de interacción:', 'myplugin'); ?></label>
                     <select name="interaction" id="interaction" onchange="this.form.submit()">
                         <option value="orbitControls" <?php selected($current_option, 'orbitControls'); ?>>Orbit controls</option>
                         <option value="deviceOrientationControls" <?php selected($current_option, 'deviceOrientationControls'); ?>>Device Orientation Controls</option>
@@ -186,27 +186,31 @@ function generate_3d_content($data, $is_category = false, $is_tag = false) {
             </div>
 
 <?php
-            switch ($_GET['3Dtype']) {
-                case 'armoire':
-                    echo '<script type="module" src="' . plugin_dir_url(__FILE__) . 'assets/js/armoire.js"></script>';
-                    echo '<script>var content = ' . json_encode(array_reverse($data['posts'])) . ';</script>';
-                    break;
-                case 'pointAndClick':
-                    echo '<script type="module" src="' . plugin_dir_url(__FILE__) . 'assets/js/pointAndClick.js"></script>';
-                    echo '<script>var content = ' . json_encode($data['content']) . '; var title = ' . json_encode($data['title']) .';</script>';
-                    break;
-                // case 'galaxy':
-                //     echo '<script src="' . plugin_dir_url(__FILE__) . 'assets/js/galaxy.js"></script>';
-                //     break;
-                // case 'museum':
-                //     echo '<script src="' . plugin_dir_url(__FILE__) . 'assets/js/museum.js"></script>';
-                //     break;
-                default:
-                    echo '<script src="' . plugin_dir_url(__FILE__) . 'assets/js/pointAndClick.js"></script>';
-                    echo '<script>build_dashboard(' . json_encode($data) . ');</script>';
-                    break;
+            if ($_GET['interaction'] === 'deviceOrientationControls' && !wp_is_mobile()) {
+                echo '<div class="interaction-error">Esta función solo está disponible en dispositivos móviles. Redirigiendo a los controles de órbita...</div>';
+                echo '<script>setTimeout(function() { window.location.href = window.location.href.replace("interaction=deviceOrientationControls", "interaction=orbitControls"); }, 3000);</script>';
+            } else {
+                switch ($_GET['3Dtype']) {
+                    case 'armoire':
+                        echo '<script type="module" src="' . plugin_dir_url(__FILE__) . 'assets/js/armoire.js"></script>';
+                        echo '<script>var content = ' . json_encode(array_reverse($data['posts'])) . ';</script>';
+                        break;
+                    case 'pointAndClick':
+                        echo '<script type="module" src="' . plugin_dir_url(__FILE__) . 'assets/js/pointAndClick.js"></script>';
+                        echo '<script>var content = ' . json_encode($data['content']) . '; var title = ' . json_encode($data['title']) .';</script>';
+                        break;
+                    // case 'galaxy':
+                    //     echo '<script src="' . plugin_dir_url(__FILE__) . 'assets/js/galaxy.js"></script>';
+                    //     break;
+                    // case 'museum':
+                    //     echo '<script src="' . plugin_dir_url(__FILE__) . 'assets/js/museum.js"></script>';
+                    //     break;
+                    default:
+                        echo '<script src="' . plugin_dir_url(__FILE__) . 'assets/js/pointAndClick.js"></script>';
+                        echo '<script>build_dashboard(' . json_encode($data) . ');</script>';
+                        break;
+                }
             }
-
 ?>
         </body>
     </html>

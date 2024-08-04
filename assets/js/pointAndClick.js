@@ -3,12 +3,14 @@ import * as ThreeMeshUI from 'three-mesh-ui';
 
 import { OrbitControls } from 'three/addons/jsm/controls/OrbitControls.js';
 import { BoxLineGeometry } from 'three/addons/jsm/geometries/BoxLineGeometry.js';
+import { DeviceOrientationControls } from './deviceOrientationControls.js';
 
 // Variables
 
 let scene, camera, renderer, controls;
 let objsToIntersect = [], objsToOverflow = [];
 let moveForward = false, moveBackward = false;
+let interactionType = window.location.search.substring(1).split("&").find(param => param.includes('interaction=')).split('=')[1];
 
 // Obtain content from wordpress page
 
@@ -33,10 +35,8 @@ const PADDING = 0.025;
 
 // Set font
 
-// const fontTexture = 'https://oierlayana.com/tfg/wp-content/uploads/fonts/Roboto-msdf.png';
-// const fontJSON = 'https://oierlayana.com/tfg/wp-content/uploads/fonts/Roboto-msdf.json';
-const fontTexture = 'http://localhost/wordpress/wp-content/uploads/fonts/Roboto-msdf.png';
-const fontJSON = 'http://localhost/wordpress/wp-content/uploads/fonts/Roboto-msdf.json';
+const fontTexture = 'https://oierlayana.com/tfg/wp-content/uploads/fonts/Roboto-msdf.png';
+const fontJSON = 'https://oierlayana.com/tfg/wp-content/uploads/fonts/Roboto-msdf.json';
 
 // Interaction and listeners
 
@@ -86,6 +86,7 @@ function init() {
     // CAMERA
 
     camera = new THREE.PerspectiveCamera(60, WIDTH / HEIGHT, 0.1, 100);
+    camera.position.set(0, 3.4, 1);
 
     // RENDERER
 
@@ -94,7 +95,6 @@ function init() {
     renderer.setSize(WIDTH, HEIGHT);
     renderer.localClippingEnabled = true;
     renderer.xr.enabled = true;
-    //document.body.appendChild(VRButton.createButton(renderer));
     document.body.appendChild(renderer.domElement);
 
     // ROOM
@@ -112,38 +112,21 @@ function init() {
     scene.add(room);
     objsToIntersect.push(roomMesh);
 
-    // ORBIT CONTROLS
+    // CONTROLS
 
-    controls = new OrbitControls(camera, renderer.domElement);
-    camera.position.set(0, 3.4, 1);
-    controls.target = new THREE.Vector3(0, 2.6, -1.8);
-
-    // DEVICE ORIENTATION CONTROLS
-
-    let interactionType = window.location.search.substring(1).split("&").find(param => param.includes('interaction='));
-
-    if (interactionType.split('=')[1] === 'deviceOrientationControls') {
-        // window.addEventListener('deviceorientation', function (event) {
-        //     const alpha = event.alpha ? THREE.MathUtils.degToRad(event.alpha) : 0;
-        //     const beta = event.beta ? THREE.MathUtils.degToRad(event.beta) : 0;
-        //     const gamma = event.gamma ? THREE.MathUtils.degToRad(event.gamma) : 0;
-
-        //     const quaternion = new THREE.Quaternion();
-        //     //quaternion.setFromEuler(new THREE.Euler(beta, alpha, -gamma, 'YXZ'));
-
-        //     // // Apply the quaternion to the scene
-        //     //camera.rotation.set(quaternion.x, quaternion.y, quaternion.z, quaternion.w);
-        // }, true);
-
+    if (interactionType === 'orbitControls') {
+        controls = new OrbitControls(camera, renderer.domElement);
+        controls.target = new THREE.Vector3(0, 2.6, -1.8);
+    } else if (interactionType === 'deviceOrientationControls') {
+        controls = new DeviceOrientationControls(camera);
         createMovingControls();
     }
 
     // TEXT PANELS FOR CONTENT
-    
+
     makeTextPanel(newContent, title);
 
     renderer.setAnimationLoop(loop);
-
 }
 
 //
@@ -503,14 +486,15 @@ function onWindowResize() {
 function loop() {
     ThreeMeshUI.update();
 
-    controls.update();
-
     renderer.render(scene, camera);
 
     updateClickables();
     updateOverflows();
 
-    moveCamera();
+    if (interactionType === 'deviceOrientationControls')
+        moveCamera();
+
+    controls.update();
 }
 
 //
@@ -796,17 +780,11 @@ function mostrarCompradoOLike(text) {
         justifyContent: 'center',
     });
 
-    new THREE.TextureLoader().load('http://localhost/wordpress/wp-content/uploads/' + imagen + '.png', (texture) => {
+    new THREE.TextureLoader().load('https://oierlayana.com/tfg/wp-content/uploads/' + imagen + '.png', (texture) => {
         notificationImage.set({
             backgroundTexture: texture,
         });
     });
-
-    // new THREE.TextureLoader().load('https://oierlayana.com/tfg/wp-content/uploads/' + imagen + '.png', (texture) => {
-    //     notificationImage.set({
-    //         backgroundTexture: texture,
-    //     });
-    // });
 
     notificationBlock.add(notificationImage);
 
@@ -840,11 +818,27 @@ function createMovingControls() {
         moveForward = false;
     });
 
+    forwardButton.addEventListener('touchstart', () => {
+        moveForward = true;
+    });
+
+    forwardButton.addEventListener('touchend', () => {
+        moveForward = false;
+    });
+
     backwardButton.addEventListener('mousedown', () => {
         moveBackward = true;
     });
 
     backwardButton.addEventListener('mouseup', () => {
+        moveBackward = false;
+    });
+
+    backwardButton.addEventListener('touchstart', () => {
+        moveBackward = true;
+    });
+
+    backwardButton.addEventListener('touchend', () => {
         moveBackward = false;
     });
 }
