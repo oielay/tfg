@@ -184,6 +184,11 @@ function generate_3d_content($data, $is_category = false, $is_tag = false) {
                     &darr;
                 </button>
             </div>
+            
+            <div id="notification" class="notification">
+                <img id="notification-image"></img>
+                <div id="notification-text"></div>
+            </div>
 
 <?php
             if ($_GET['interaction'] === 'deviceOrientationControls' && !wp_is_mobile()) {
@@ -193,7 +198,7 @@ function generate_3d_content($data, $is_category = false, $is_tag = false) {
                 switch ($_GET['3Dtype']) {
                     case 'armoire':
                         echo '<script type="module" src="' . plugin_dir_url(__FILE__) . 'assets/js/armoire.js"></script>';
-                        echo '<script>var content = ' . json_encode(array_reverse($data['posts'])) . ';</script>';
+                        echo '<script>var content = ' . json_encode($data['posts']) . ';</script>';
                         break;
                     case 'pointAndClick':
                         echo '<script type="module" src="' . plugin_dir_url(__FILE__) . 'assets/js/pointAndClick.js"></script>';

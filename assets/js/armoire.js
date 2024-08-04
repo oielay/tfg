@@ -1,13 +1,15 @@
 import * as THREE from 'three';
 import * as ThreeMeshUI from 'three-mesh-ui';
 
-// import { VRButton } from 'three/addons/jsm/webxr/VRButton.js';
 import { OrbitControls } from 'three/addons/jsm/controls/OrbitControls.js';
+import { DeviceOrientationControls } from './deviceOrientationControls.js';
 
 // Variables
 
 let scene, camera, renderer, controls;
 let objsToIntersect = [], objsToOverflow = [], textPanels = [];
+let moveForward = false, moveBackward = false;
+let interactionType = window.location.search.substring(1).split("&").find(param => param.includes('interaction=')).split('=')[1];
 
 // Obtain content from wordpress page
 
@@ -34,8 +36,15 @@ const PADDING = 0.025;
 // Other variables
 
 var clock = new THREE.Clock();
-var time = 0;
 var radius = 5;
+var isPaused = false;
+var elapsedTime = 0;
+var pauseStartTime = 0;
+
+// Set font
+
+const fontTexture = 'https://oierlayana.com/tfg/wp-content/uploads/fonts/Roboto-msdf.png';
+const fontJSON = 'https://oierlayana.com/tfg/wp-content/uploads/fonts/Roboto-msdf.json';
 
 // Interaction and listeners
 
@@ -94,7 +103,6 @@ function init() {
     renderer.setSize(WIDTH, HEIGHT);
     renderer.localClippingEnabled = true;
     renderer.xr.enabled = true;
-    //document.body.appendChild(VRButton.createButton(renderer));
     document.body.appendChild(renderer.domElement);
 
     // ROOM
@@ -107,28 +115,16 @@ function init() {
     scene.add(roomMesh);
     objsToIntersect.push(roomMesh);
 
-    // ORBIT CONTROLS FOR NO-VR
+    // CONTROLS
 
-    controls = new OrbitControls(camera, renderer.domElement);
-    controls.enableDamping = true; // Enable smooth damping
-    controls.dampingFactor = 0.25;
-    controls.screenSpacePanning = false; // Disable panning
-    controls.target = new THREE.Vector3(3, 0, 0);
-
-    // GYROSCOPE CONTROLS FOR VR
-
-    window.addEventListener('deviceorientation', function (event) {
-        const alpha = event.alpha ? THREE.MathUtils.degToRad(event.alpha) : 0;
-        const beta = event.beta ? THREE.MathUtils.degToRad(event.beta) : 0;
-        const gamma = event.gamma ? THREE.MathUtils.degToRad(event.gamma) : 0;
-
-        const quaternion = new THREE.Quaternion();
-        // quaternion.setFromEuler(new THREE.Euler(beta, alpha, -gamma, 'YXZ'));
-
-        // // Apply the quaternion to the scene
-        // camera.rotation.set(quaternion.x, quaternion.y, quaternion.z, quaternion.w);
-    }, true);
-
+    if (interactionType === 'orbitControls') {
+        controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableZoom = true;
+        controls.target = new THREE.Vector3(3, 0, 0);
+    } else if (interactionType === 'deviceOrientationControls') {
+        controls = new DeviceOrientationControls(camera);
+        createMovingControls();
+    }
 
     // TEXT PANELS FOR CONTENT
     
@@ -137,7 +133,6 @@ function init() {
     }
 
     renderer.setAnimationLoop(loop);
-
 }
 
 //
@@ -146,10 +141,8 @@ function makeTextPanel(content, title, pos_i, totalPosts) {
     const container = new ThreeMeshUI.Block({
         ref: 'container',
         padding: PADDING,
-        // fontFamily: 'https://oierlayana.com/tfg/wp-content/uploads/fonts/Roboto-msdf.json',
-        // fontTexture: 'https://oierlayana.com/tfg/wp-content/uploads/fonts/Roboto-msdf.png',
-        fontFamily: 'http://localhost/wordpress/wp-content/uploads/fonts/Roboto-msdf.json',
-        fontTexture: 'http://localhost/wordpress/wp-content/uploads/fonts/Roboto-msdf.png',
+        fontFamily: fontJSON,
+        fontTexture: fontTexture,
         fontColor: new THREE.Color(0xffffff),
         backgroundOpacity: 0,
     });
@@ -269,8 +262,8 @@ function makeTextPanel(content, title, pos_i, totalPosts) {
                         })
                     );
 
-                    caption1 = addStatesLinks(caption1, links[i]);
-                    caption2 = addStatesLinks(caption2, links[i + 1]);
+                    caption1 = addStatesLinks(caption1, links[i], title);
+                    caption2 = addStatesLinks(caption2, links[i + 1], title);
 
                     captionsSubBlock.add(caption1);
                     captionsSubBlock.add(caption2);
@@ -298,7 +291,7 @@ function makeTextPanel(content, title, pos_i, totalPosts) {
                     })
                 );
 
-                extraCaption = addStatesLinks(extraCaption, links[numLinks - 1]);
+                extraCaption = addStatesLinks(extraCaption, links[numLinks - 1], title);
 
                 captionsBlock.add(extraCaption);
 
@@ -364,7 +357,7 @@ function makeTextPanel(content, title, pos_i, totalPosts) {
                         })
                     );
 
-                    caption = addStatesLinks(caption, textItem);
+                    caption = addStatesLinks(caption, textItem, title);
 
                     objsToIntersect.push(caption);
 
@@ -420,7 +413,7 @@ function makeTextPanel(content, title, pos_i, totalPosts) {
             
             let childrenTextsHeight = 0;
             texts.forEach(child => {
-                childrenTextsHeight += child.height + MARGIN * 2    ;
+                childrenTextsHeight += child.height + MARGIN * 2;
             });
 
             if (childrenTextsHeight > DASHBOARD_HEIGHT) {
@@ -504,23 +497,16 @@ function onWindowResize() {
 function loop() {
     ThreeMeshUI.update();
 
-    controls.update();
     renderer.render(scene, camera);
 
     updateClickables();
     updateOverflows();
+    updatePanels();
 
-    time = clock.getElapsedTime() * 0.1 * Math.PI;
+    if (interactionType === 'deviceOrientationControls')
+        moveCamera();
 
-    textPanels.forEach((panel, ndx) => {
-        let angle = time + Math.PI * 0.5 * ndx;
-        panel.position.set(
-            Math.cos(angle) * radius,
-            0,
-            Math.sin(angle) * radius
-        )
-        panel.lookAt(0, 0, 0);
-    })
+    controls.update();
 }
 
 //
@@ -630,7 +616,7 @@ function addStatesButtons(button, name) {
 }
 */
 
-function addStatesLinks(link, item) {
+function addStatesLinks(link, item, title) {
     link.setupState({
         state: 'selected',
         attributes: {
@@ -641,7 +627,7 @@ function addStatesLinks(link, item) {
             if (item.value !== 'No href')
                 window.open(item.value, '_self');
             else
-                mostrarCompradoOLike(item.text);
+                mostrarCompradoOLike(item.text, title);
         }
     });
 
@@ -679,6 +665,41 @@ function addStatesText(text) {
 }
 
 //
+
+function checkPanelsDistance(panels, setDistance) {
+    for (let i = 0; i < panels.length; i++) {
+        if (camera.position.distanceTo(panels[i].position) < setDistance) {
+            return true;
+        }
+    }
+    return false;
+}
+
+function updatePanels() {
+    if (!checkPanelsDistance(textPanels, 3)) {
+        if (isPaused) {
+            const pauseDuration = clock.getElapsedTime() * 0.1 * Math.PI - pauseStartTime;
+            elapsedTime += pauseDuration;
+            isPaused = false;
+        }
+
+        const time = clock.getElapsedTime() * 0.1 * Math.PI - elapsedTime;
+        textPanels.forEach((panel, ndx) => {
+            let angle = time + Math.PI * 0.5 * ndx;
+            panel.position.set(
+                Math.cos(-angle) * radius,
+                0,
+                Math.sin(-angle) * radius
+            );
+            panel.lookAt(0, 0, 0);  
+        });
+    } else {
+        if (!isPaused) {
+            pauseStartTime = clock.getElapsedTime() * 0.1 * Math.PI;
+            isPaused = true;
+        }
+    }
+}
 
 function updateClickables() {
 
@@ -774,57 +795,80 @@ function raycast(list) {
 
 }
 
-function mostrarCompradoOLike(text) {
+function mostrarCompradoOLike(text, title) {
     let texto, imagen;
 
     if (text === 'Comprar') {
-        texto = 'Se ha comprado el producto';
+        texto = 'Se ha comprado el producto ' + title;
         imagen = 'shopping-cart';
     } else {
-        texto = 'Se ha dado like a la publicación';
+        texto = 'Se ha dado like a la publicación ' + title;
         imagen = 'like';
     }
 
-    const notificationBlock = new ThreeMeshUI.Block({
-        width: 0.85,
-        height: 0.1,
-        backgroundOpacity: 0.8,
-        backgroundColor: new THREE.Color(0x00FF00),
-        justifyContent: 'center',
-        alignItems: 'center',
-        contentDirection: 'row',
-        fontFamily: 'http://localhost/wordpress/wp-content/uploads/fonts/Roboto-msdf.json',
-        fontTexture: 'http://localhost/wordpress/wp-content/uploads/fonts/Roboto-msdf.png',
-    });
+    let notification = document.getElementById('notification');
+    notification.style.display = 'flex';
 
-    notificationBlock.position.set(0, 3, -1);
-    notificationBlock.rotation.x = -0.55;
+    let notificationText = document.getElementById('notification-text');
+    notificationText.textContent = texto;
 
-    const notificationImage = new ThreeMeshUI.InlineBlock({
-        height: 0.05,
-        width: 0.07,    
-        justifyContent: 'center',
-    });
-
-    new THREE.TextureLoader().load('http://localhost/wordpress/wp-content/uploads/' + imagen + '.png', (texture) => {
-        notificationImage.set({
-            backgroundTexture: texture,
-        });
-    });
-
-    notificationBlock.add(notificationImage);
-
-    const notificationText = new ThreeMeshUI.Text({
-        content: normalizeText('  ' + texto),
-        fontSize: 0.05,
-        fontColor: new THREE.Color(0x000000),
-    });
-
-    notificationBlock.add(notificationText);
-
-    scene.add(notificationBlock);
+    let notificationImage = document.getElementById('notification-image');
+    notificationImage.src = 'https://oierlayana.com/tfg/wp-content/uploads/' + imagen + '.png';
 
     setTimeout(() => {
-        scene.remove(notificationBlock);
+        notification.style.display = 'none';
     }, 3000);
+}
+
+function createMovingControls() {
+    let moveButtons = document.getElementById('move-buttons');
+    moveButtons.style.display = 'flex';
+
+    let forwardButton = document.getElementById('move-forward');
+    let backwardButton = document.getElementById('move-backward');
+
+    forwardButton.addEventListener('mousedown', () => {
+        moveForward = true;
+    });
+
+    forwardButton.addEventListener('mouseup', () => {
+        moveForward = false;
+    });
+
+    forwardButton.addEventListener('touchstart', () => {
+        moveForward = true;
+    });
+
+    forwardButton.addEventListener('touchend', () => {
+        moveForward = false;
+    });
+
+    backwardButton.addEventListener('mousedown', () => {
+        moveBackward = true;
+    });
+
+    backwardButton.addEventListener('mouseup', () => {
+        moveBackward = false;
+    });
+
+    backwardButton.addEventListener('touchstart', () => {
+        moveBackward = true;
+    });
+
+    backwardButton.addEventListener('touchend', () => {
+        moveBackward = false;
+    });
+}
+
+function moveCamera() {
+    const direction = new THREE.Vector3();
+    camera.getWorldDirection(direction);
+
+    if (moveForward) {
+        camera.position.addScaledVector(direction, 0.02);
+    }
+
+    if (moveBackward) {
+        camera.position.addScaledVector(direction, -0.02);
+    }
 }

@@ -132,7 +132,7 @@ select {
     user-select: none;
 }
 
-/************ INTERACTION ERROR *************/
+/************ INTERACTION ERROR ************/
 
 .interaction-error {
     position: fixed;
@@ -145,4 +145,29 @@ select {
     text-align: center;
     padding: 10px;
     font-size: 20px;
+}
+
+/************ NOTIFICATION ************/
+
+.notification {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 9999;
+    background-color: lightgreen;
+    color: black;
+    text-align: center;
+    padding: 10px;
+    font-size: 20px;
+    display: none;
+    justify-content: space-evenly;
+    align-items: center;
+    border: 1px solid black;
+    border-radius: 5px;
+}
+
+.notification > img {
+    width: 40px;
+    aspect-ratio: 1/1;
 }
