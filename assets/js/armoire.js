@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import * as ThreeMeshUI from 'three-mesh-ui';
 
+import { BoxLineGeometry } from 'three/addons/jsm/geometries/BoxLineGeometry.js';
 import { OrbitControls } from 'three/addons/jsm/controls/OrbitControls.js';
 import { DeviceOrientationControls } from './deviceOrientationControls.js';
 
@@ -33,18 +34,20 @@ const CAPTION_WIDTH = 0.375;
 const MARGIN = 0.025;
 const PADDING = 0.025;
 
-// Other variables
+// Other variables for panel movement
 
 var clock = new THREE.Clock();
 var radius = 5;
 var isPaused = false;
 var elapsedTime = 0;
 var pauseStartTime = 0;
+var isAnyPanelStopped = false;
+var stoppedPanel = 0;
 
 // Set font
 
-const fontTexture = 'https://oierlayana.com/tfg/wp-content/uploads/fonts/Roboto-msdf.png';
-const fontJSON = 'https://oierlayana.com/tfg/wp-content/uploads/fonts/Roboto-msdf.json';
+const fontTexture = 'http://localhost/wordpress/wp-content/uploads/fonts/Roboto-msdf.png';
+const fontJSON = 'http://localhost/wordpress/wp-content/uploads/fonts/Roboto-msdf.json';
 
 // Interaction and listeners
 
@@ -89,7 +92,7 @@ function init() {
     // SCENE
 
     scene = new THREE.Scene();
-    scene.background = new THREE.Color(0xDDDDDD);
+    scene.background = new THREE.Color(0x505050);
 
     // CAMERA
 
@@ -107,12 +110,17 @@ function init() {
 
     // ROOM
 
-    const roomMesh = new THREE.Mesh(
-        new THREE.BoxGeometry(100, 100, 100, 100, 100, 0).translate(0, 5, 0),
-        new THREE.MeshBasicMaterial({ color: new THREE.Color(0xDDDDDD), side: THREE.BackSide })
+    const room = new THREE.LineSegments(
+        new BoxLineGeometry(40, 40, 40, 40, 40, 40).translate(0, 5, 0),
+        new THREE.LineBasicMaterial({ color: 0x808080 })
     );
 
-    scene.add(roomMesh);
+    const roomMesh = new THREE.Mesh(
+        new THREE.BoxGeometry(40, 40, 40, 40, 40, 40).translate(0, 5, 0),
+        new THREE.MeshBasicMaterial({ side: THREE.BackSide })
+    );
+
+    scene.add(room);
     objsToIntersect.push(roomMesh);
 
     // CONTROLS
@@ -129,7 +137,12 @@ function init() {
     // TEXT PANELS FOR CONTENT
     
     for (let i = 0; i < newContent.length; i++) {
-        textPanels.push(makeTextPanel(newContent[i], titles[i], i, newContent.length));
+        textPanels.push(
+            {
+                panel: makeTextPanel(newContent[i], titles[i], i, newContent.length),
+                elapsedTime: 0,
+            }
+        );
     }
 
     renderer.setAnimationLoop(loop);
@@ -666,39 +679,40 @@ function addStatesText(text) {
 
 //
 
-function checkPanelsDistance(panels, setDistance) {
-    for (let i = 0; i < panels.length; i++) {
-        if (camera.position.distanceTo(panels[i].position) < setDistance) {
-            return true;
-        }
-    }
+function checkPanelDistance(panel, setDistance) {
+    if (camera.position.distanceTo(panel.position) < setDistance)
+        return true;
     return false;
 }
 
 function updatePanels() {
-    if (!checkPanelsDistance(textPanels, 3)) {
-        if (isPaused) {
-            const pauseDuration = clock.getElapsedTime() * 0.1 * Math.PI - pauseStartTime;
-            elapsedTime += pauseDuration;
-            isPaused = false;
-        }
-
-        const time = clock.getElapsedTime() * 0.1 * Math.PI - elapsedTime;
-        textPanels.forEach((panel, ndx) => {
+    textPanels.forEach((panel, ndx) => {
+        if (checkPanelDistance(panel.panel, 3) && (!isAnyPanelStopped || stoppedPanel === ndx)) {
+            if (!isPaused) {
+                pauseStartTime = clock.getElapsedTime() * 0.1 * Math.PI;
+                isPaused = true;
+                isAnyPanelStopped = true;
+                stoppedPanel = ndx;
+            }
+        } else {
+            if (stoppedPanel === ndx && isAnyPanelStopped) {
+                const pauseDuration = clock.getElapsedTime() * 0.1 * Math.PI - pauseStartTime;
+                isPaused = false;
+                isAnyPanelStopped = false;
+                panel.elapsedTime += pauseDuration;
+            }
+            
+            const time = (clock.getElapsedTime() - panel.elapsedTime) * 0.1 * Math.PI;
+            
             let angle = time + Math.PI * 0.5 * ndx;
-            panel.position.set(
+            panel.panel.position.set(
                 Math.cos(-angle) * radius,
                 0,
                 Math.sin(-angle) * radius
-            );
-            panel.lookAt(0, 0, 0);  
-        });
-    } else {
-        if (!isPaused) {
-            pauseStartTime = clock.getElapsedTime() * 0.1 * Math.PI;
-            isPaused = true;
+            );  
+            panel.panel.lookAt(0, 0, 0);
         }
-    }
+    });
 }
 
 function updateClickables() {
@@ -813,7 +827,7 @@ function mostrarCompradoOLike(text, title) {
     notificationText.textContent = texto;
 
     let notificationImage = document.getElementById('notification-image');
-    notificationImage.src = 'https://oierlayana.com/tfg/wp-content/uploads/' + imagen + '.png';
+    notificationImage.src = 'http://localhost/wordpress/wp-content/uploads/' + imagen + '.png';
 
     setTimeout(() => {
         notification.style.display = 'none';
@@ -865,10 +879,10 @@ function moveCamera() {
     camera.getWorldDirection(direction);
 
     if (moveForward) {
-        camera.position.addScaledVector(direction, 0.02);
+        camera.position.addScaledVector(direction, 0.03);
     }
 
     if (moveBackward) {
-        camera.position.addScaledVector(direction, -0.02);
+        camera.position.addScaledVector(direction, -0.03);
     }
 }

@@ -1,8 +1,8 @@
 import * as THREE from 'three';
 import * as ThreeMeshUI from 'three-mesh-ui';
 
-import { OrbitControls } from 'three/addons/jsm/controls/OrbitControls.js';
 import { BoxLineGeometry } from 'three/addons/jsm/geometries/BoxLineGeometry.js';
+import { OrbitControls } from 'three/addons/jsm/controls/OrbitControls.js';
 import { DeviceOrientationControls } from './deviceOrientationControls.js';
 
 // Variables
