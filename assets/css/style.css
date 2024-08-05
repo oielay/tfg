@@ -43,6 +43,10 @@ html, body {
 
 .menu-container {
     display: none;
+    flex-direction: column;
+    align-items: start;
+    justify-content: start;
+    gap: 5%;
     position: fixed;
     top: 0;
     left: 0;
@@ -53,6 +57,11 @@ html, body {
     transition: 0.5s;
     padding-top: 60px;
     z-index: 1000;
+    font-family: Arial, sans-serif;
+}
+
+.menu-container > * {
+    margin-left: 5%;
 }
 
 .menubtn {
@@ -75,7 +84,7 @@ html, body {
 form {
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: start;
     justify-content: center;
     margin-top: 10%;
 }
@@ -95,6 +104,61 @@ select {
     box-sizing: border-box;
     font-size: 16px;
     align-self: center;
+}
+
+.interaction-name {
+    width: max-content;
+    padding: 10px;
+    margin: 10px 0;
+    display: inline-block;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-size: 16px;
+    color: black;
+    background-color: white;
+    text-align: start;
+    margin-left: 25%;
+}
+
+.instructions-menu {
+    display: none;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    padding: 10px;
+    margin-top: 5px;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/************ MODALS ************/
+
+.modal-title {
+    align-self: center;
+}
+
+.modal-body {
+	align-self: center;
+	justify-self: center;
+	align-items: center;
+
+	justify-content: center;
+	max-width: 700px;
+}
+
+.modal-content {
+	margin: auto;
+	width: 60%;
+	border-radius: 10px;
+  
+	animation-name: zoom;
+	animation-timing-function: ease;
+	animation-duration: 0.5s;
+}
+
+.modal-body > label {
+	margin-left: 10%;
+	margin-right: 10%
 }
 
 /************ MOVE BUTTONS ************/

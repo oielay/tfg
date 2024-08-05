@@ -137,9 +137,15 @@ function generate_3d_content($data, $is_category = false, $is_tag = false) {
                     }
                 }
             </script>
+
+            <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet"
+                  integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"
+                  integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN"
+                  crossorigin="anonymous"></script>
+
             <link rel="stylesheet" href="<?php echo plugin_dir_url(__FILE__) . 'assets/css/style.css'; ?>">
             <script type="module" src="<?php echo plugin_dir_url(__FILE__) . 'assets/js/3d-menu.js'; ?>" defer></script>
-
         </head>
         <body>
             <div class="hist-nav-buttons">
@@ -147,28 +153,69 @@ function generate_3d_content($data, $is_category = false, $is_tag = false) {
                     class="nav-button unselectable"
                     onClick="window.history.back();"
                 >
-                        BACK
+                        ATRÁS
                 </button>
                 <button 
                     class="nav-button unselectable"
                     onClick="window.history.forward();"
                 >
-                        FORWARD
+                        ADELANTE
                 </button>
             </div>
 
             <div id="myMenu" class="menu-container">
                 <form method="get">
                     <input type="hidden" name="3Denabled" value="true">
-                    <label for="interaction"><?php _e('Elige el método de interacción:', 'myplugin'); ?></label>
+                    <label for="interaction"><?php _e('Elige el método de interacción', 'myplugin'); ?></label>
                     <select name="interaction" id="interaction" onchange="this.form.submit()">
-                        <option value="orbitControls" <?php selected($current_option, 'orbitControls'); ?>>Orbit controls</option>
-                        <option value="deviceOrientationControls" <?php selected($current_option, 'deviceOrientationControls'); ?>>Device Orientation Controls</option>
+                        <option value="orbitControls" <?php selected($current_option, 'orbitControls'); ?>>Controles de órbita</option>
+                        <option value="deviceOrientationControls" <?php selected($current_option, 'deviceOrientationControls'); ?>>Controles de orientación de dispositivo</option>
                     </select>
                 </form>
+
+                <div>
+                    <label for="instrucciones"><?php _e('Instrucciones', 'myplugin'); ?></label>
+                    <div id="instrucciones" class="instrucciones">
+                        <div>
+                            <button class="interaction-name" data-bs-toggle="modal" data-bs-target="#staticBackdropInstructions">Abrir instrucciones</button>
+                            <div class="modal fade" id="staticBackdropInstructions" data-bs-backdrop="false" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-lg">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h2 class="modal-title" id="staticBackdropLabel">INSTRUCCIONES</h2>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <h4>Controles de órbita</h4>
+                                            <p>Utilice los siguientes controles para interactuar con el contenido en 3D:</p>
+                                            <ul>
+                                                <li><strong>Movimiento:</strong> Utilice dos dedos y deslícelos en la dirección deseada.</li>
+                                                <li><strong>Orientación y rotación:</strong> Utilice un dedo y deslícelo para rotar la vista de la cámara.</li>
+                                                <li><strong>Pulsado:</strong> Pulse con un dedo en el lugar deseado.</li>
+                                            </ul>
+
+                                            <br><br>
+
+                                            <h4>Controles de orientación de dispositivo</h4>
+                                            <p>Utilice los siguientes controles para interactuar con el contenido en 3D:</p>
+                                            <ul>
+                                                <li><strong>Movimiento:</strong> Utilize los botones de adelante y atrás para avanzar y retroceder en el espacio.</li>
+                                                <li><strong>Orientación y rotación:</strong> Incline o gire su dispositivo para cambiar la vista de la cámara.</li>
+                                                <li><strong>Pulsado:</strong> Pulse con un dedo en el lugar deseado.</li>
+                                            </ul>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Cerrar</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>      
             </div>
 
-            <button id="menubtn" class="menubtn unselectable">&#9776; Open Menu</button>
+            <button id="menubtn" class="menubtn unselectable">&#9776; Abrir Menú</button>
 
             <div id="move-buttons" class="move-buttons">
                 <button 
@@ -241,8 +288,8 @@ function myplugin_meta_box_callback($post) {
     ?>
     <label for="myplugin_menu_option"><?php _e('Elige el método de interacción:', 'myplugin'); ?></label>
     <select name="myplugin_menu_option" id="myplugin_menu_option">
-        <option value="orbitControls" <?php selected($selected, 'orbitControls'); ?>>Orbit controls</option>
-        <option value="deviceOrientationControls" <?php selected($selected, 'deviceOrientationControls'); ?>>Device Orientation Controls</option>
+        <option value="orbitControls" <?php selected($selected, 'orbitControls'); ?>>Controles de órbita</option>
+        <option value="deviceOrientationControls" <?php selected($selected, 'deviceOrientationControls'); ?>>Controles de orientación de dispositivo</option>
     </select>
     <?php
 }

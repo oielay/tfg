@@ -35,8 +35,8 @@ const PADDING = 0.025;
 
 // Set font
 
-const fontTexture = 'https://oierlayana.com/tfg/wp-content/uploads/fonts/Roboto-msdf.png';
-const fontJSON = 'https://oierlayana.com/tfg/wp-content/uploads/fonts/Roboto-msdf.json';
+const fontTexture = 'http://localhost/wordpress/wp-content/uploads/fonts/Roboto-msdf.png';
+const fontJSON = 'http://localhost/wordpress/wp-content/uploads/fonts/Roboto-msdf.json';
 
 // Interaction and listeners
 
@@ -668,7 +668,7 @@ function updateClickables() {
 
     if ( intersect && intersect.object.isUI ) {
 
-        if ( selectState ) {
+        if ( selectState && !isModalOpen('staticBackdropInstructions')) {
 
             intersect.object.setState( 'selected' );
 
@@ -706,7 +706,7 @@ function updateOverflows() {
 
     if ( intersect && intersect.object.isUI ) {
 
-        if (intersect.object.currentState === 'hidden-on') {
+        if (intersect.object.currentState === 'hidden-on' && !isModalOpen('staticBackdropInstructions')) {
 
             intersect.object.setState('hidden-off');
 
@@ -824,4 +824,9 @@ function moveCamera() {
     if (moveBackward) {
         camera.position.addScaledVector(direction, -0.02);
     }
+}
+
+function isModalOpen(modalId) {
+    var modal = document.getElementById(modalId);
+    return modal.classList.contains('show');
 }
