@@ -251,12 +251,23 @@ function generate_3d_content($data, $is_category = false, $is_tag = false) {
                         echo '<script type="module" src="' . plugin_dir_url(__FILE__) . 'assets/js/pointAndClick.js"></script>';
                         echo '<script>var content = ' . json_encode($data['content']) . '; var title = ' . json_encode($data['title']) .';</script>';
                         break;
+                    case 'museum':
+                        echo '<script type="module" src="' . plugin_dir_url(__FILE__) . 'assets/js/museum.js"></script>';
+
+                        $groupedPosts = array();
+                        foreach ($data['posts'] as $post) {
+                            $tags = wp_get_post_tags($post['id'], array('fields' => 'slugs'));
+                            foreach ($tags as $tag) {
+                                if (!isset($groupedPosts[$tag]))
+                                    $groupedPosts[$tag] = array();
+                                $groupedPosts[$tag][] = $post;
+                            }
+                        }
+                        
+                        echo '<script>var content = ' . json_encode($groupedPosts) . ';</script>';
+                        break;
                     // case 'galaxy':
                     //     echo '<script src="' . plugin_dir_url(__FILE__) . 'assets/js/galaxy.js"></script>';
-                    //     break;
-                    // case 'museum':
-                    //     echo '<script src="' . plugin_dir_url(__FILE__) . 'assets/js/museum.js"></script>';
-                    //     echo '<script>var content = ' . json_encode($data) . ';</script>';
                     //     break;
                 }
             }
