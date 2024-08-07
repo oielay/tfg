@@ -137,12 +137,7 @@ function init() {
     // TEXT PANELS FOR CONTENT
     
     for (let i = 0; i < newContent.length; i++) {
-        textPanels.push(
-            {
-                panel: makeTextPanel(newContent[i], titles[i], i, newContent.length),
-                elapsedTime: 0,
-            }
-        );
+        textPanels.push(makeTextPanel(newContent[i], titles[i], i, newContent.length));
     }
 
     renderer.setAnimationLoop(loop);
@@ -687,30 +682,27 @@ function checkPanelDistance(panel, setDistance) {
 
 function updatePanels() {
     textPanels.forEach((panel, ndx) => {
-        if (checkPanelDistance(panel.panel, 3) && (!isAnyPanelStopped || stoppedPanel === ndx)) {
+        if (checkPanelDistance(panel, 3) && (!isAnyPanelStopped || stoppedPanel === ndx)) {
             if (!isPaused) {
-                pauseStartTime = clock.getElapsedTime() * 0.1 * Math.PI;
                 isPaused = true;
                 isAnyPanelStopped = true;
                 stoppedPanel = ndx;
             }
         } else {
             if (stoppedPanel === ndx && isAnyPanelStopped) {
-                const pauseDuration = clock.getElapsedTime() * 0.1 * Math.PI - pauseStartTime;
                 isPaused = false;
                 isAnyPanelStopped = false;
-                panel.elapsedTime += pauseDuration;
             }
             
-            const time = (clock.getElapsedTime() - panel.elapsedTime) * 0.1 * Math.PI;
+            const time = clock.getElapsedTime() * 0.1 * Math.PI;
             
             let angle = time + Math.PI * 0.5 * ndx;
-            panel.panel.position.set(
+            panel.position.set(
                 Math.cos(-angle) * radius,
                 0,
                 Math.sin(-angle) * radius
             );  
-            panel.panel.lookAt(0, 0, 0);
+            panel.lookAt(0, 0, 0);
         }
     });
 }
