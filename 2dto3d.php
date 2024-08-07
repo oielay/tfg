@@ -256,11 +256,8 @@ function generate_3d_content($data, $is_category = false, $is_tag = false) {
                     //     break;
                     // case 'museum':
                     //     echo '<script src="' . plugin_dir_url(__FILE__) . 'assets/js/museum.js"></script>';
+                    //     echo '<script>var content = ' . json_encode($data) . ';</script>';
                     //     break;
-                    default:
-                        echo '<script src="' . plugin_dir_url(__FILE__) . 'assets/js/pointAndClick.js"></script>';
-                        echo '<script>build_dashboard(' . json_encode($data) . ');</script>';
-                        break;
                 }
             }
 ?>
@@ -272,27 +269,54 @@ function generate_3d_content($data, $is_category = false, $is_tag = false) {
 
 function myplugin_add_meta_box() {
     add_meta_box(
-        'myplugin_meta_box_id',
-        __('Método de interacción 3D', 'myplugin'),
-        'myplugin_meta_box_callback',
+        'myplugin_post_meta_box_id',
+        __('Interacción 3D', 'myplugin'),
+        'myplugin_post_meta_box_callback',
         'post',
+        'side',
+    );
+
+    add_meta_box(
+        'myplugin_taxonomy_meta_box_id',
+        __('Entorno de dibujado 3D', 'myplugin'),
+        'myplugin_taxonomy_meta_box_callback',
+        array('category', 'post_tag'),
         'side'
     );
 }
 add_action('add_meta_boxes', 'myplugin_add_meta_box');
 
-function myplugin_meta_box_callback($post) {
-    // Retrieve the current value
+function myplugin_post_meta_box_callback($post) {
     $selected = get_post_meta($post->ID, '_myplugin_menu_option', true);
     wp_nonce_field('myplugin_save_meta_box_data', 'myplugin_meta_box_nonce');
     ?>
-    <label for="myplugin_menu_option"><?php _e('Elige el método de interacción:', 'myplugin'); ?></label>
     <select name="myplugin_menu_option" id="myplugin_menu_option">
         <option value="orbitControls" <?php selected($selected, 'orbitControls'); ?>>Controles de órbita</option>
-        <option value="deviceOrientationControls" <?php selected($selected, 'deviceOrientationControls'); ?>>Controles de orientación de dispositivo</option>
+        <option value="deviceOrientationControls" <?php selected($selected, 'deviceOrientationControls'); ?>>Controles de orientación</option>
     </select>
     <?php
 }
+
+function myplugin_taxonomy_meta_box_callback($term) {
+    $selected = get_term_meta($term->term_id, '_myplugin_menu_option', true);
+    wp_nonce_field('myplugin_save_meta_box_data', 'myplugin_meta_box_nonce');
+    ?>
+    <tr class="form-field">
+        <th scope="row" valign="top">
+            <label for="myplugin_menu_option"><?php _e('Elige el dibujado 3D:', 'myplugin'); ?></label>
+        </th>
+        <td>
+            <select name="myplugin_menu_option" id="myplugin_menu_option" class="postbox">
+                <option value="armoire" <?php selected($selected, 'armoire'); ?>>Armería</option>
+                <option value="museum" <?php selected($selected, 'museum'); ?>>Museo</option>
+                <option value="galaxy" <?php selected($selected, 'galaxy'); ?>>Galaxia</option>
+            </select>
+        </td>
+    </tr>
+    <?php
+}
+add_action('category_edit_form_fields', 'myplugin_taxonomy_meta_box_callback');
+add_action('post_tag_edit_form_fields', 'myplugin_taxonomy_meta_box_callback');
 
 function myplugin_save_postdata($post_id) {
     if (!isset($_POST['myplugin_meta_box_nonce']) || !wp_verify_nonce($_POST['myplugin_meta_box_nonce'], 'myplugin_save_meta_box_data')) {
@@ -317,6 +341,26 @@ function myplugin_save_postdata($post_id) {
 }
 add_action('save_post', 'myplugin_save_postdata');
 
+function myplugin_save_taxonomydata($term_id) {
+    if (!isset($_POST['myplugin_meta_box_nonce']) || !wp_verify_nonce($_POST['myplugin_meta_box_nonce'], 'myplugin_save_meta_box_data')) {
+        return;
+    }
+
+    if (!current_user_can('edit_term', $term_id)) {
+        return;
+    }
+
+    if (array_key_exists('myplugin_menu_option', $_POST)) {
+        update_term_meta(
+            $term_id,
+            '_myplugin_menu_option',
+            $_POST['myplugin_menu_option']
+        );
+    }
+}
+add_action('edited_category', 'myplugin_save_taxonomydata');
+add_action('edited_post_tag', 'myplugin_save_taxonomydata');
+
 function myplugin_add_default_url_params() {
     if (is_admin() || !is_singular() && !is_category() && !is_tag()) {
         return;
@@ -332,7 +376,7 @@ function myplugin_add_default_url_params() {
         $params['3Dtype'] = 'pointAndClick';
         $params['interaction'] = get_post_meta(get_the_ID(), '_myplugin_menu_option', true) ?: 'orbitControls';
     } elseif (is_category() || is_tag()) {
-        $params['3Dtype'] = 'armoire';
+        $params['3Dtype'] = get_term_meta(get_queried_object_id(), '_myplugin_menu_option', true) ?: 'armoire';
         $params['interaction'] = 'orbitControls';
     }
 
