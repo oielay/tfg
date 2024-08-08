@@ -89,6 +89,14 @@ form {
     margin-top: 10%;
 }
 
+form > div {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 5%;
+}
+
 label {
     font-size: 20px;
     color: white;
@@ -106,19 +114,10 @@ select {
     align-self: center;
 }
 
-.interaction-name {
-    width: max-content;
-    padding: 10px;
-    margin: 10px 0;
-    display: inline-block;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-sizing: border-box;
-    font-size: 16px;
-    color: black;
-    background-color: white;
-    text-align: start;
-    margin-left: 25%;
+.interaction-info {
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
 }
 
 .instructions-menu {

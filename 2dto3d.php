@@ -113,7 +113,10 @@ function generate_3d_content($data, $is_category = false, $is_tag = false) {
         exit;
     }
 
-    $current_option = isset($_GET['interaction']) ? $_GET['interaction'] : get_post_meta(get_the_ID(), '_myplugin_menu_option', true);
+    $current_interaction = isset($_GET['interaction']) ? $_GET['interaction'] : get_post_meta(get_the_ID(), '_interaction_option', true);
+    
+    if ($is_category || $is_tag)
+        $current_environment = isset($_GET['3Dtype']) ? $_GET['3Dtype'] : get_term_meta(get_queried_object_id(), '_environment_option', true);
 ?>
 
     <!DOCTYPE html>
@@ -165,54 +168,60 @@ function generate_3d_content($data, $is_category = false, $is_tag = false) {
 
             <div id="myMenu" class="menu-container">
                 <form method="get">
-                    <input type="hidden" name="3Denabled" value="true">
                     <label for="interaction"><?php _e('Elige el método de interacción', 'myplugin'); ?></label>
-                    <select name="interaction" id="interaction" onchange="this.form.submit()">
-                        <option value="orbitControls" <?php selected($current_option, 'orbitControls'); ?>>Controles de órbita</option>
-                        <option value="deviceOrientationControls" <?php selected($current_option, 'deviceOrientationControls'); ?>>Controles de orientación de dispositivo</option>
-                    </select>
+                    <div>
+                        <select name="interaction" id="interaction" onchange="this.form.submit()">
+                            <option value="orbitControls" <?php selected($current_interaction, 'orbitControls'); ?>>Controles de órbita</option>
+                            <option value="deviceOrientationControls" <?php selected($current_interaction, 'deviceOrientationControls'); ?>>Controles de orientación de dispositivo</option>
+                        </select>
+                        <span class="interaction-info" data-bs-toggle="modal" data-bs-target="#staticBackdropInstructions">&#x1F6C8;</span>
+                    </div>
                 </form>
 
-                <div>
-                    <label for="instrucciones"><?php _e('Instrucciones', 'myplugin'); ?></label>
-                    <div id="instrucciones" class="instrucciones">
-                        <div>
-                            <button class="interaction-name" data-bs-toggle="modal" data-bs-target="#staticBackdropInstructions">Abrir instrucciones</button>
-                            <div class="modal fade" id="staticBackdropInstructions" data-bs-backdrop="false" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-                                <div class="modal-dialog modal-lg">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h2 class="modal-title" id="staticBackdropLabel">INSTRUCCIONES</h2>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                        </div>
-                                        <div class="modal-body">
-                                            <h4>Controles de órbita</h4>
-                                            <p>Utilice los siguientes controles para interactuar con el contenido en 3D:</p>
-                                            <ul>
-                                                <li><strong>Movimiento:</strong> Utilice dos dedos y deslícelos en la dirección deseada.</li>
-                                                <li><strong>Orientación y rotación:</strong> Utilice un dedo y deslícelo para rotar la vista de la cámara.</li>
-                                                <li><strong>Pulsado:</strong> Pulse con un dedo en el lugar deseado.</li>
-                                            </ul>
+                <div class="modal fade" id="staticBackdropInstructions" data-bs-backdrop="false" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-xl">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h2 class="modal-title" id="staticBackdropLabel">INSTRUCCIONES</h2>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <h4>Controles de órbita</h4>
+                                <p>Utilice los siguientes controles para interactuar con el contenido en 3D:</p>
+                                <ul>
+                                    <li><strong>Movimiento:</strong> Utilice dos dedos y deslícelos en la dirección deseada.</li>
+                                    <li><strong>Orientación y rotación:</strong> Utilice un dedo y deslícelo para rotar la vista de la cámara.</li>
+                                    <li><strong>Pulsado:</strong> Pulse con un dedo en el lugar deseado.</li>
+                                </ul>
 
-                                            <br><br>
+                                <br><br>
 
-                                            <h4>Controles de orientación de dispositivo</h4>
-                                            <p>Utilice los siguientes controles para interactuar con el contenido en 3D:</p>
-                                            <ul>
-                                                <li><strong>Movimiento:</strong> Utilize los botones de adelante y atrás para avanzar y retroceder en el espacio.</li>
-                                                <li><strong>Orientación y rotación:</strong> Incline o gire su dispositivo para cambiar la vista de la cámara.</li>
-                                                <li><strong>Pulsado:</strong> Pulse con un dedo en el lugar deseado.</li>
-                                            </ul>
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Cerrar</button>
-                                        </div>
-                                    </div>
-                                </div>
+                                <h4>Controles de orientación de dispositivo</h4>
+                                <p>Utilice los siguientes controles para interactuar con el contenido en 3D:</p>
+                                <ul>
+                                    <li><strong>Movimiento:</strong> Utilize los botones de adelante y atrás para avanzar y retroceder en el espacio.</li>
+                                    <li><strong>Orientación y rotación:</strong> Incline o gire su dispositivo para cambiar la vista de la cámara.</li>
+                                    <li><strong>Pulsado:</strong> Pulse con un dedo en el lugar deseado.</li>
+                                </ul>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Cerrar</button>
                             </div>
                         </div>
                     </div>
-                </div>      
+                </div>
+                
+                <?php if (is_category() || is_tag()) : ?>
+                    <form method="get" style="margin-top: 0;">
+                        <label for="3Dtype"><?php _e('Elige el entorno 3D', 'myplugin'); ?></label>
+                        <select name="3Dtype" id="environment" onchange="this.form.submit()">
+                            <option value="armoire" <?php selected($current_environment, 'armoire'); ?>>Armería</option>
+                            <option value="museum" <?php selected($current_environment, 'museum'); ?>>Museo</option>
+                            <option value="galaxy" <?php selected($current_environment, 'galaxy'); ?>>Galaxia</option>
+                        </select>
+                    </form>
+                <?php endif; ?>
+                
             </div>
 
             <button id="menubtn" class="menubtn unselectable">&#9776; Abrir Menú</button>
