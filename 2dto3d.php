@@ -174,7 +174,7 @@ function generate_3d_content($data, $is_category = false, $is_tag = false) {
                             <option value="orbitControls" <?php selected($current_interaction, 'orbitControls'); ?>>Controles de órbita</option>
                             <option value="deviceOrientationControls" <?php selected($current_interaction, 'deviceOrientationControls'); ?>>Controles de orientación de dispositivo</option>
                         </select>
-                        <span class="interaction-info" data-bs-toggle="modal" data-bs-target="#staticBackdropInstructions">&#x1F6C8;</span>
+                        <span class="interaction-info" data-bs-toggle="modal" data-bs-target="#staticBackdropInstructions">&#8505;</span>
                     </div>
                 </form>
 
