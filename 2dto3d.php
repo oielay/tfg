@@ -265,20 +265,40 @@ function generate_3d_content($data, $is_category = false, $is_tag = false) {
 
                         $groupedPosts = array();
                         foreach ($data['posts'] as $post) {
-                            if ($is_category)
+                            if ($is_category) {
                                 $subgroups = wp_get_post_tags($post['id'], array('fields' => 'slugs'));
-                            else if ($is_tag)
+                            } else if ($is_tag) {
                                 $subgroups = wp_get_post_categories($post['id'], array('fields' => 'slugs'));
+                            }
 
                             foreach ($subgroups as $subgroup) {
-                                if (isset($groupedPosts[$subgroup]) || strtolower($subgroup) === strtolower($data['name']))
+                                if (strtolower($subgroup) === strtolower($data['name'])) {
                                     continue;
+                                }
 
-                                $groupedPosts[$subgroup] = array();
-                                $groupedPosts[$subgroup][] = $post;
+                                $name = $subgroup;
+                                
+                                // Check if the subgroup name already exists in the groupedPosts array
+                                $found = false;
+                                foreach ($groupedPosts as &$group) {
+                                    if (strtolower($group['name']) === strtolower($name)) {
+                                        // If it exists, append the current post to the posts array
+                                        $group['posts'][] = $post;
+                                        $found = true;
+                                        break;
+                                    }
+                                }
+
+                                // If the name was not found, create a new entry
+                                if (!$found) {
+                                    $groupedPosts[] = array(
+                                        'name' => $name,
+                                        'posts' => array($post)
+                                    );
+                                }
                             }
                         }
-                                                
+
                         echo '<script>var content = ' . json_encode($groupedPosts) . ';</script>';
                         break;
                     // case 'galaxy':
