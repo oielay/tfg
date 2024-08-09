@@ -14,8 +14,17 @@ let interactionType = window.location.search.substring(1).split("&").find(param 
 
 // Obtain content from wordpress page
 
-// let newContent = content.map((post) => JSON.parse(JSON.stringify(extractContent(post['content']), null, 2)).flat());
-// let titles = content.map((post) => post['title']);
+let newContent = content.map((subgroup) => {
+    return {
+        subgroup: subgroup.name,
+        posts: subgroup.posts.map((post) => {
+            return {
+                title: post.title,
+                content: JSON.parse(JSON.stringify(extractContent(post['content']), null, 2)).flat()
+            };
+        })
+    };
+});
 
 // Set page height and width
 
@@ -24,6 +33,12 @@ const HEIGHT = window.innerHeight;
 
 // Set constants
 
+const SHELF_HEIGHT = 5.5;
+const SHELF_WIDTH = 5.5;
+const SHELF_DEPTH = 0.3;
+const SHELF_SPACING = 0.5;
+const SUBGROUP_TITLE_HEIGHT = 1;
+const SUBGROUP_TITLE_WIDTH = 8;
 const TITLE_HEIGHT = 0.35;
 const DASHBOARD_HEIGHT = 1;
 const DASHBOARD_WIDTH = 1.5;
@@ -126,56 +141,145 @@ function init() {
 
     // SHELVES
 
-    const positions = [
-        // Orange shelves (x: 0, z: 5)
-        { x: -2, y: 0, z: 10 },
-        { x: 0, y: 0, z: 10 },
-        { x: 2, y: 0, z: 10 },
-
-        // Green shelves (x: 10)
-        { x: 10, y: 0, z: -2 },
-        { x: 10, y: 0, z: 0 },
-        { x: 10, y: 0, z: 2 },
-
-        // Blue shelves (x: 0, z: -5)
-        { x: -2, y: 0, z: -10 },
-        { x: 0, y: 0, z: -10 },
-        { x: 2, y: 0, z: -10 }
+    const shelfPositions = [
+        // Orange Shelves
+        { x: -4, y: 0, z: 9.85, rotationY: Math.PI / 2, color: 0xffa500 },
+        { x: 0, y: 0, z: 9.85, rotationY: Math.PI / 2, color: 0xffa500 },
+        { x: 4, y: 0, z: 9.85, rotationY: Math.PI / 2, color: 0xffa500 },
+    
+        // Green Shelves
+        { x: 9.85, y: 0, z: -4, rotationY: 0, color: 0x00ff00 },
+        { x: 9.85, y: 0, z: 0, rotationY: 0, color: 0x00ff00 },
+        { x: 9.85, y: 0, z: 4, rotationY: 0, color: 0x00ff00 },
+    
+        // Blue Shelves
+        { x: 4, y: 0, z: -9.85, rotationY: -Math.PI / 2, color: 0x0000ff },
+        { x: 0, y: 0, z: -9.85, rotationY: -Math.PI / 2, color: 0x0000ff },
+        { x: -4, y: 0, z: -9.85, rotationY: -Math.PI / 2, color: 0x0000ff },
     ];
 
-    positions.forEach((pos, index) => {
-        const color = index < 3 ? 0xffa500 : index < 6 ? 0x00ff00 : 0x0000ff;
-        createShelf(color, pos);
+    shelfPositions.forEach((shelf, index) => {
+        createShelf(shelf.color, shelf);
     });
 
-    // TEXT PANELS FOR CONTENT
-    
-    // for (let i = 0; i < newContent.length; i++) {
-    //     textPanels.push(makeTextPanel(newContent[i], titles[i], i, newContent.length));
-    // }
+    for (let groupIndex = 0; groupIndex < 3; groupIndex++) {
+        let title = createShelfSubgroupsTitle(groupIndex, shelfPositions[groupIndex * 3 + 1]);
+        scene.add(title);
+
+        for (let shelfIndex = 0; shelfIndex < 3; shelfIndex++) {
+            const shelfNumber = groupIndex * 3 + shelfIndex;
+            const shelf = shelfPositions[shelfNumber];
+
+            const startIndex = shelfIndex * 4;
+            const posts = newContent[groupIndex].posts.slice(startIndex, startIndex + 4);
+
+            const subgroupPositioning = groupIndex === 0 ? 'left' : groupIndex === 1 ? 'front' : 'right';
+            
+            // let textPanels = 
+            createTextPanelsForShelf(posts, shelf, subgroupPositioning);
+            // scene.add(textPanels);
+        }
+    }
 
     renderer.setAnimationLoop(loop);
 }
 
 //
 
-function createShelf(color, position) {
-    let rotation = 0;
-    if (color === 0xffa500 || color === 0x0000ff) {
-        rotation = Math.PI / 2;
-    }
-
-    const geometry = new THREE.BoxGeometry(1, 5, 0.1);
+function createShelf(color, shelfInfo) {
+    const geometry = new THREE.BoxGeometry(SHELF_WIDTH, SHELF_HEIGHT, SHELF_DEPTH);
     const material = new THREE.MeshBasicMaterial({ color });
     const shelf = new THREE.Mesh(geometry, material);
-    shelf.position.set(position.x, position.y, position.z);
-    shelf.rotation.y = rotation;
+
+    shelf.position.set(shelfInfo.x, shelfInfo.y, shelfInfo.z);
+    shelf.rotation.y = shelfInfo.rotationY;
+
+    const edgeMaterial = new THREE.LineBasicMaterial({ color: 0x000000 });
+    const edges = new THREE.LineSegments(new BoxLineGeometry(SHELF_WIDTH, SHELF_HEIGHT, SHELF_DEPTH), edgeMaterial);
+
+    edges.position.set(shelfInfo.x, shelfInfo.y, shelfInfo.z);
+    edges.rotation.y = shelfInfo.rotationY;
+
     scene.add(shelf);
+    scene.add(edges);
 }
 
 //
 
-function makeTextPanel(content, title, pos_i, totalPosts) {
+function createShelfSubgroupsTitle(groupIndex, shelfInfo) {
+    const title = new ThreeMeshUI.Block({
+        height: SUBGROUP_TITLE_HEIGHT,
+        width: SUBGROUP_TITLE_WIDTH,
+        padding: PADDING,
+        fontFamily: fontJSON,
+        fontTexture: fontTexture,
+        fontColor: new THREE.Color(0xffffff),
+        justifyContent: 'center',
+    });
+
+    title.position.set(shelfInfo.x, shelfInfo.y + SHELF_HEIGHT, shelfInfo.z);
+    title.rotation.y = shelfInfo.rotationY === 0 ? Math.PI / 2 : 0;
+    title.lookAt(0, shelfInfo.y + SHELF_HEIGHT, 0);
+
+    title.add(
+        new ThreeMeshUI.Text({
+            content: normalizeText(newContent[groupIndex].subgroup).toUpperCase(),
+            fontSize: 0.5,
+            backgroundColor: new THREE.Color(0x000000),
+        })
+    );
+
+    return title;
+}
+
+//
+
+function createTextPanelsForShelf(content, shelf, positioning) {
+    switch (positioning) {
+        case 'front':
+            shelf.z = shelf.z + SHELF_DEPTH / 2;
+            break;
+        case 'left':
+            shelf.x = shelf.x + SHELF_DEPTH / 2;
+            break;
+        case 'right':
+            shelf.x = shelf.x - SHELF_DEPTH / 2;
+            break;
+    }
+
+    content.forEach((post, index) => {
+        if (index === content.length / 2 - content.length % 2)
+            switch (positioning) {
+                case 'front':
+                    shelf.z = shelf.z - SHELF_DEPTH;
+                    break;
+                case 'left':
+                    shelf.x = shelf.x - SHELF_DEPTH;
+                    break;
+                case 'right':
+                    shelf.x = shelf.x + SHELF_DEPTH;
+                    break;
+            }
+
+        const panelPosition = { 
+            x: shelf.x,
+            y: index % 2 === 0 ? shelf.y + SHELF_HEIGHT / 4 : shelf.y - SHELF_HEIGHT / 4,
+            z: shelf.z
+        };
+        const panelRotation = { 
+            y: index <= content.length / 2 - 1 ? shelf.rotationY : shelf.rotationY + Math.PI
+        };
+
+        const textPanel = makeTextPanel(post.content, post.title, panelPosition, panelRotation);
+        textPanels.push(textPanel);
+    });
+
+    return textPanels;
+}
+
+//
+
+function makeTextPanel(content, title, panelPosition, panelRotation) {
     const container = new ThreeMeshUI.Block({
         ref: 'container',
         padding: PADDING,
@@ -184,14 +288,10 @@ function makeTextPanel(content, title, pos_i, totalPosts) {
         fontColor: new THREE.Color(0xffffff),
         backgroundOpacity: 0,
     });
+   
+    container.position.set(panelPosition.x, panelPosition.y, panelPosition.z);
+    container.rotation.y = panelRotation.y;
 
-    const postSpacing = 2.5;
-    const cameraOffset = (totalPosts % 2 === 0) ? (postSpacing / 2) : 0;
-    const containerX = (pos_i - Math.floor(totalPosts / 2)) * postSpacing + cameraOffset;
-    
-    container.position.set(containerX, 3, -1.8);
-    
-    container.rotation.x = -0.55;
     scene.add(container);
 
     let imgWidth = 0;
