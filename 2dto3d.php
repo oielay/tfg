@@ -15,7 +15,7 @@ function get_page_or_category_content() {
         return;
     }
 
-    if (is_category() ) {
+    if (is_category()) {
         $category = get_queried_object();
         $category_id = $category->term_id;
 
@@ -265,14 +265,20 @@ function generate_3d_content($data, $is_category = false, $is_tag = false) {
 
                         $groupedPosts = array();
                         foreach ($data['posts'] as $post) {
-                            $tags = wp_get_post_tags($post['id'], array('fields' => 'slugs'));
-                            foreach ($tags as $tag) {
-                                if (!isset($groupedPosts[$tag]))
-                                    $groupedPosts[$tag] = array();
-                                $groupedPosts[$tag][] = $post;
+                            if ($is_category)
+                                $subgroups = wp_get_post_tags($post['id'], array('fields' => 'slugs'));
+                            else if ($is_tag)
+                                $subgroups = wp_get_post_categories($post['id'], array('fields' => 'slugs'));
+
+                            foreach ($subgroups as $subgroup) {
+                                if (isset($groupedPosts[$subgroup]) || strtolower($subgroup) === strtolower($data['name']))
+                                    continue;
+
+                                $groupedPosts[$subgroup] = array();
+                                $groupedPosts[$subgroup][] = $post;
                             }
                         }
-                        
+                                                
                         echo '<script>var content = ' . json_encode($groupedPosts) . ';</script>';
                         break;
                     // case 'galaxy':
