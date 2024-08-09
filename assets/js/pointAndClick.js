@@ -766,7 +766,7 @@ function mostrarCompradoOLike(text, title) {
     notificationText.textContent = texto;
 
     let notificationImage = document.getElementById('notification-image');
-    notificationImage.src = 'https://oierlayana.com/tfg/wp-content/uploads/' + imagen + '.png';
+    notificationImage.src = 'http://localhost/wordpress/wp-content/uploads/' + imagen + '.png';
 
     setTimeout(() => {
         notification.style.display = 'none';
