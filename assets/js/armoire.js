@@ -111,12 +111,12 @@ function init() {
     // ROOM
 
     const room = new THREE.LineSegments(
-        new BoxLineGeometry(40, 40, 40, 40, 40, 40).translate(0, 5, 0),
+        new BoxLineGeometry(100, 100, 100, 10, 10, 10).translate(0, 5, 0),
         new THREE.LineBasicMaterial({ color: 0x808080 })
     );
 
     const roomMesh = new THREE.Mesh(
-        new THREE.BoxGeometry(40, 40, 40, 40, 40, 40).translate(0, 5, 0),
+        new THREE.BoxGeometry(100, 100, 100, 100, 100, 100).translate(0, 5, 0),
         new THREE.MeshBasicMaterial({ side: THREE.BackSide })
     );
 
@@ -634,7 +634,7 @@ function addStatesLinks(link, item, title) {
         onSet: () => {
             if (item.value !== 'No href')
                 window.open(item.value, '_self');
-            else
+            else if (item.text === 'Comprar' || item.text === 'Like')
                 mostrarCompradoOLike(item.text, title);
         }
     });
@@ -682,6 +682,15 @@ function checkPanelDistance(panel, setDistance) {
 
 function updatePanels() {
     textPanels.forEach((panel, ndx) => {
+        const postsPerCircle = 4;
+        const circleIndex = Math.floor(ndx / postsPerCircle);
+        const positionInCircle = ndx % postsPerCircle;
+
+        const baseRadius = 5;
+        const radiusIncrement = 5;
+
+        const radius = baseRadius + radiusIncrement * circleIndex;
+
         if (checkPanelDistance(panel, 3) && (!isAnyPanelStopped || stoppedPanel === ndx)) {
             if (!isPaused) {
                 isPaused = true;
@@ -693,10 +702,10 @@ function updatePanels() {
                 isPaused = false;
                 isAnyPanelStopped = false;
             }
-            
+
             const time = clock.getElapsedTime() * 0.1 * Math.PI;
-            
-            let angle = time + Math.PI * 0.5 * ndx;
+
+            let angle = time + Math.PI * 2 * (positionInCircle / postsPerCircle);
             panel.position.set(
                 Math.cos(-angle) * radius,
                 0,

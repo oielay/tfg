@@ -763,7 +763,7 @@ function addStatesLinks(link, item, title) {
         onSet: () => {
             if (item.value !== 'No href')
                 window.open(item.value, '_self');
-            else
+            else if (item.text === 'Comprar' || item.text === 'Like')
                 mostrarCompradoOLike(item.text, title);
         }
     });
