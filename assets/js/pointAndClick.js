@@ -38,6 +38,23 @@ const PADDING = 0.025;
 const fontTexture = 'http://localhost/wordpress/wp-content/uploads/fonts/Roboto-msdf.png';
 const fontJSON = 'http://localhost/wordpress/wp-content/uploads/fonts/Roboto-msdf.json';
 
+// TASKS
+
+let userStudyTasks = {
+    numberOfTotalInteractions: 0,
+    numberOfLikesOrBuys: 0,
+    numberOfTextOverflows: 0,
+    numberOfClicks: 0,
+    timeSpent: 0,
+};
+
+window.addEventListener('beforeunload', function() {
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', '../../tasks.php', true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.send(JSON.stringify({ userStudyTasks }));
+});
+
 // Interaction and listeners
 
 const raycaster = new THREE.Raycaster();
@@ -52,7 +69,16 @@ window.addEventListener( 'pointermove', ( event ) => {
     mouse.y = -( event.clientY / window.innerHeight ) * 2 + 1;
 } );
 
+window.addEventListener( 'touchmove', ( event ) => {
+    mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+    mouse.y = -( event.clientY / window.innerHeight ) * 2 + 1;
+} );
+
 window.addEventListener( 'pointerdown', () => {
+    selectState = true;
+} );
+
+window.addEventListener( 'touchstart', () => {
     selectState = true;
 } );
 
@@ -60,20 +86,16 @@ window.addEventListener( 'pointerup', () => {
     selectState = false;
 } );
 
-window.addEventListener( 'touchstart', ( event ) => {
-    selectState = true;
-    mouse.x = ( event.touches[ 0 ].clientX / window.innerWidth ) * 2 - 1;
-    mouse.y = -( event.touches[ 0 ].clientY / window.innerHeight ) * 2 + 1;
-} );
-
 window.addEventListener( 'touchend', () => {
     selectState = false;
-    mouse.x = null;
-    mouse.y = null;
 } );
 
 window.addEventListener('load', init);
 window.addEventListener('resize', onWindowResize);
+
+window.addEventListener('click', () => {
+    userStudyTasks.numberOfClicks++;
+});
 
 //
 
@@ -612,10 +634,14 @@ function addStatesLinks(link, item, title) {
             backgroundColor: new THREE.Color( 0xffffff ),
         },
         onSet: () => {
+            userStudyTasks.numberOfTotalInteractions++;
+
             if (item.value !== 'No href')
                 window.open(item.value, '_self');
-            else
+            else if (item.text === 'Comprar' || item.text === 'Like') {
                 mostrarCompradoOLike(item.text, title);
+                userStudyTasks.numberOfLikesOrBuys++;
+            }
         }
     });
 
@@ -643,7 +669,11 @@ function addStatesLinks(link, item, title) {
 function addStatesText(text) {
     text.setupState({
         state: 'hidden-on',
-        attributes: {hiddenOverflow: true}
+        attributes: {hiddenOverflow: true},
+        onSet: () => {
+            userStudyTasks.numberOfTotalInteractions++;
+            userStudyTasks.numberOfTextOverflows++;
+        }
     });
 
     text.setupState({
