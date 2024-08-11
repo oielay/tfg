@@ -17,6 +17,17 @@ let interactionType = window.location.search.substring(1).split("&").find(param 
 let newContent = content.map((post) => JSON.parse(JSON.stringify(extractContent(post['content']), null, 2)).flat());
 let titles = content.map((post) => post['title']);
 
+newContent, titles = shuffleArrays(newContent, titles);
+
+function shuffleArrays(array, array2) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+        [array2[i], array2[j]] = [array2[j], array2[i]];
+    }
+    return array, array2;
+}
+
 // Set page height and width
 
 const WIDTH = window.innerWidth;
@@ -37,12 +48,13 @@ const PADDING = 0.025;
 // Other variables for panel movement
 
 var clock = new THREE.Clock();
-var radius = 5;
 var isPaused = false;
-var elapsedTime = 0;
-var pauseStartTime = 0;
 var isAnyPanelStopped = false;
-var stoppedPanel = 0;
+let stoppedCircle = -1;
+let stoppedPanel = -1;
+const postsPerCircle = 4;
+const baseRadius = 5;
+const radiusIncrement = 5;
 
 // Set font
 
@@ -137,7 +149,9 @@ function init() {
     // TEXT PANELS FOR CONTENT
     
     for (let i = 0; i < newContent.length; i++) {
-        textPanels.push(makeTextPanel(newContent[i], titles[i], i, newContent.length));
+        let panel = makeTextPanel(newContent[i], titles[i], i, newContent.length);
+        textPanels.push(panel);
+        objsToIntersect.push(panel);
     }
 
     renderer.setAnimationLoop(loop);
@@ -681,36 +695,42 @@ function checkPanelDistance(panel, setDistance) {
 }
 
 function updatePanels() {
-    textPanels.forEach((panel, ndx) => {
-        const postsPerCircle = 4;
-        const circleIndex = Math.floor(ndx / postsPerCircle);
-        const positionInCircle = ndx % postsPerCircle;
-
-        const baseRadius = 5;
-        const radiusIncrement = 5;
+    textPanels.forEach((panel, index) => {
+        const circleIndex = Math.floor(index / postsPerCircle);
+        const positionInCircle = index % postsPerCircle;
 
         const radius = baseRadius + radiusIncrement * circleIndex;
 
-        if (checkPanelDistance(panel, 3) && (!isAnyPanelStopped || stoppedPanel === ndx)) {
+        const reverseDirection = circleIndex % 2 === 1;
+
+        const panelDistance = checkPanelDistance(panel, 3);
+
+        if (panelDistance || (stoppedCircle === circleIndex && isAnyPanelStopped)) {
             if (!isPaused) {
                 isPaused = true;
                 isAnyPanelStopped = true;
-                stoppedPanel = ndx;
+                stoppedCircle = circleIndex;
+                stoppedPanel = index;
             }
-        } else {
-            if (stoppedPanel === ndx && isAnyPanelStopped) {
+            
+            if (!panelDistance && stoppedPanel === index) {
                 isPaused = false;
                 isAnyPanelStopped = false;
-            }
-
+                stoppedCircle = -1;
+            }            
+        } else {
             const time = clock.getElapsedTime() * 0.1 * Math.PI;
 
             let angle = time + Math.PI * 2 * (positionInCircle / postsPerCircle);
+            if (reverseDirection) {
+                angle = -angle;
+            }
+
             panel.position.set(
-                Math.cos(-angle) * radius,
+                Math.cos(angle) * radius,
                 0,
-                Math.sin(-angle) * radius
-            );  
+                Math.sin(angle) * radius
+            );
             panel.lookAt(0, 0, 0);
         }
     });
@@ -730,6 +750,8 @@ function updateClickables() {
 
     if ( intersect && intersect.object.isUI ) {
 
+        if ( intersect.object.parentUI == null ) return;
+
         if ( selectState && !isModalOpen('staticBackdropInstructions')) {
 
             intersect.object.setState( 'selected' );
@@ -743,6 +765,8 @@ function updateClickables() {
     }
 
     objsToIntersect.forEach( ( obj ) => {
+
+        if ( obj.parentUI == null ) return;
 
         if ( ( !intersect || obj !== intersect.object ) && obj.isUI ) {
 
