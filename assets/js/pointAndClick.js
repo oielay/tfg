@@ -117,6 +117,7 @@ function init() {
 
     if (interactionType === 'orbitControls') {
         controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableZoom = true;
         controls.target = new THREE.Vector3(0, 2.6, -1.8);
     } else if (interactionType === 'deviceOrientationControls') {
         controls = new DeviceOrientationControls(camera);
