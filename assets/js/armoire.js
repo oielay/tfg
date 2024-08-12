@@ -55,6 +55,11 @@ let stoppedPanel = -1;
 const postsPerCircle = 4;
 const baseRadius = 5;
 const radiusIncrement = 5;
+const circleSpeeds = [];
+for (let i = 0; i < newContent.length; i++) {
+    const speed = Math.random();
+    circleSpeeds.push(speed);
+}
 
 // Set font
 
@@ -757,6 +762,8 @@ function updatePanels() {
             if (reverseDirection) {
                 angle = -angle;
             }
+
+            angle += circleSpeeds[circleIndex];
 
             panel.position.set(
                 Math.cos(angle) * radius,
