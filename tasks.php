@@ -2,7 +2,7 @@
 
 $userStudyTasks = json_decode(file_get_contents('php://input'), true);
 
-if ($data) {
+if ($userStudyTasks) {
     global $wpdb;
     $table_name = $wpdb->prefix . 'tasks';
 
@@ -13,7 +13,7 @@ if ($data) {
             'number_of_likes_or_buys' => $userStudyTasks['numberOfLikesOrBuys'],
             'number_of_text_overflows' => $userStudyTasks['numberOfTextOverflows'],
             'number_of_clicks' => $userStudyTasks['numberOfClicks'],
-            'time_spent' => $userStudyTasks['timeSpent'],
+            'time_spent' => date('Y-m-d H:i:s', round($userStudyTasks['timeSpent'] / 1000)),
         )
     );
 }
