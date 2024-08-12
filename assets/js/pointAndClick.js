@@ -9,7 +9,7 @@ import { DeviceOrientationControls } from './deviceOrientationControls.js';
 
 let scene, camera, renderer, controls;
 let objsToIntersect = [], objsToOverflow = [];
-let moveForward = false, moveBackward = false;
+let joystickData = { x: 0, y: 0 };
 let interactionType = window.location.search.substring(1).split("&").find(param => param.includes('interaction=')).split('=')[1];
 
 // Obtain content from wordpress page
@@ -35,8 +35,8 @@ const PADDING = 0.025;
 
 // Set font
 
-const fontTexture = 'http://localhost/wordpress/wp-content/uploads/fonts/Roboto-msdf.png';
-const fontJSON = 'http://localhost/wordpress/wp-content/uploads/fonts/Roboto-msdf.json';
+const fontTexture = 'https://oierlayana.com/tfg/wp-content/uploads/fonts/Roboto-msdf.png';
+const fontJSON = 'https://oierlayana.com/tfg/wp-content/uploads/fonts/Roboto-msdf.json';
 
 // Interaction and listeners
 
@@ -767,7 +767,7 @@ function mostrarCompradoOLike(text, title) {
     notificationText.textContent = texto;
 
     let notificationImage = document.getElementById('notification-image');
-    notificationImage.src = 'http://localhost/wordpress/wp-content/uploads/' + imagen + '.png';
+    notificationImage.src = 'https://oierlayana.com/tfg/wp-content/uploads/' + imagen + '.png';
 
     setTimeout(() => {
         notification.style.display = 'none';
@@ -775,56 +775,33 @@ function mostrarCompradoOLike(text, title) {
 }
 
 function createMovingControls() {
-    let moveButtons = document.getElementById('move-buttons');
-    moveButtons.style.display = 'flex';
+    let moveButton = document.getElementById('joystick');
+    moveButton.style.display = 'flex';
 
-    let forwardButton = document.getElementById('move-forward');
-    let backwardButton = document.getElementById('move-backward');
-
-    forwardButton.addEventListener('mousedown', () => {
-        moveForward = true;
-    });
-
-    forwardButton.addEventListener('mouseup', () => {
-        moveForward = false;
-    });
-
-    forwardButton.addEventListener('touchstart', () => {
-        moveForward = true;
-    });
-
-    forwardButton.addEventListener('touchend', () => {
-        moveForward = false;
-    });
-
-    backwardButton.addEventListener('mousedown', () => {
-        moveBackward = true;
-    });
-
-    backwardButton.addEventListener('mouseup', () => {
-        moveBackward = false;
-    });
-
-    backwardButton.addEventListener('touchstart', () => {
-        moveBackward = true;
-    });
-
-    backwardButton.addEventListener('touchend', () => {
-        moveBackward = false;
+    new JoyStick('joystick', {}, function(stickData) {
+        joystickData = stickData;
     });
 }
 
 function moveCamera() {
+    const moveSpeed = 0.0005;
+
+    const moveVector = new THREE.Vector3(
+        joystickData.x * moveSpeed,
+        0,
+        joystickData.y * moveSpeed
+    );
+
     const direction = new THREE.Vector3();
     camera.getWorldDirection(direction);
 
-    if (moveForward) {
-        camera.position.addScaledVector(direction, 0.02);
-    }
+    const moveDirection = new THREE.Vector3(
+        direction.x * moveVector.z - direction.z * moveVector.x,
+        0,
+        direction.z * moveVector.z + direction.x * moveVector.x
+    );
 
-    if (moveBackward) {
-        camera.position.addScaledVector(direction, -0.02);
-    }
+    camera.position.add(moveDirection);
 }
 
 function isModalOpen(modalId) {

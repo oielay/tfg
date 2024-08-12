@@ -149,6 +149,7 @@ function generate_3d_content($data, $is_category = false, $is_tag = false) {
 
             <link rel="stylesheet" href="<?php echo plugin_dir_url(__FILE__) . 'assets/css/style.css'; ?>">
             <script type="module" src="<?php echo plugin_dir_url(__FILE__) . 'assets/js/3d-menu.js'; ?>" defer></script>
+            <script src="<?php echo plugin_dir_url(__FILE__) . 'assets/js/joy.js'; ?>"></script>
         </head>
         <body>
             <div class="hist-nav-buttons">
@@ -226,20 +227,7 @@ function generate_3d_content($data, $is_category = false, $is_tag = false) {
 
             <button id="menubtn" class="menubtn unselectable">&#9776; Abrir Menú</button>
 
-            <div id="move-buttons" class="move-buttons">
-                <button 
-                    id="move-forward"
-                    class="move-button unselectable"
-                >
-                    &uarr;
-                </button>
-                <button
-                    id="move-backward"
-                    class="move-button unselectable"
-                >
-                    &darr;
-                </button>
-            </div>
+            <div id="joystick" class="move-button"></div>
             
             <div id="notification" class="notification">
                 <img id="notification-image"></img>
@@ -275,24 +263,19 @@ function generate_3d_content($data, $is_category = false, $is_tag = false) {
                                 if (strtolower($subgroup) === strtolower($data['name'])) {
                                     continue;
                                 }
-
-                                $name = $subgroup;
                                 
-                                // Check if the subgroup name already exists in the groupedPosts array
                                 $found = false;
                                 foreach ($groupedPosts as &$group) {
-                                    if (strtolower($group['name']) === strtolower($name)) {
-                                        // If it exists, append the current post to the posts array
+                                    if (strtolower($group['name']) === strtolower($subgroup)) {
                                         $group['posts'][] = $post;
                                         $found = true;
                                         break;
                                     }
                                 }
 
-                                // If the name was not found, create a new entry
                                 if (!$found) {
                                     $groupedPosts[] = array(
-                                        'name' => $name,
+                                        'name' => $subgroup,
                                         'posts' => array($post)
                                     );
                                 }
