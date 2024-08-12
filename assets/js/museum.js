@@ -33,10 +33,9 @@ const HEIGHT = window.innerHeight;
 
 // Set constants
 
-const SHELF_HEIGHT = 5.5;
-const SHELF_WIDTH = 5.5;
+const SHELF_HEIGHT = 3;
+const SHELF_WIDTH = 6;
 const SHELF_DEPTH = 0.3;
-const SHELF_SPACING = 0.5;
 const SUBGROUP_TITLE_HEIGHT = 1;
 const SUBGROUP_TITLE_WIDTH = 8;
 const TITLE_HEIGHT = 0.35;
@@ -167,19 +166,19 @@ function init() {
 
     const shelfPositions = [
         // Orange Shelves
-        { x: -4, y: 0, z: 9.85, rotationY: Math.PI / 2, color: 0xffa500 },
+        { x: -6, y: 0, z: 9.85, rotationY: Math.PI / 2, color: 0xffa500 },
         { x: 0, y: 0, z: 9.85, rotationY: Math.PI / 2, color: 0xffa500 },
-        { x: 4, y: 0, z: 9.85, rotationY: Math.PI / 2, color: 0xffa500 },
+        { x: 6, y: 0, z: 9.85, rotationY: Math.PI / 2, color: 0xffa500 },
     
         // Green Shelves
-        { x: 9.85, y: 0, z: -4, rotationY: 0, color: 0x00ff00 },
+        { x: 9.85, y: 0, z: -6, rotationY: 0, color: 0x00ff00 },
         { x: 9.85, y: 0, z: 0, rotationY: 0, color: 0x00ff00 },
-        { x: 9.85, y: 0, z: 4, rotationY: 0, color: 0x00ff00 },
+        { x: 9.85, y: 0, z: 6, rotationY: 0, color: 0x00ff00 },
     
         // Blue Shelves
-        { x: 4, y: 0, z: -9.85, rotationY: -Math.PI / 2, color: 0x0000ff },
+        { x: 6, y: 0, z: -9.85, rotationY: -Math.PI / 2, color: 0x0000ff },
         { x: 0, y: 0, z: -9.85, rotationY: -Math.PI / 2, color: 0x0000ff },
-        { x: -4, y: 0, z: -9.85, rotationY: -Math.PI / 2, color: 0x0000ff },
+        { x: -6, y: 0, z: -9.85, rotationY: -Math.PI / 2, color: 0x0000ff },
     ];
 
     shelfPositions.forEach((shelf, index) => {
@@ -284,9 +283,9 @@ function createTextPanelsForShelf(content, shelf, positioning) {
             }
 
         const panelPosition = { 
-            x: shelf.x,
-            y: index % 2 === 0 ? shelf.y + SHELF_HEIGHT / 4 : shelf.y - SHELF_HEIGHT / 4,
-            z: shelf.z
+            x: positioning === 'front' ? shelf.x + (index % 2 === 0 ? -SHELF_WIDTH / 4 : SHELF_WIDTH / 4) : shelf.x,
+            y: shelf.y,
+            z: positioning === 'front' ? shelf.z : shelf.z + (index % 2 === 0 ? -SHELF_WIDTH / 4 : SHELF_WIDTH / 4)
         };
         const panelRotation = { 
             y: index <= content.length / 2 - 1 ? shelf.rotationY : shelf.rotationY + Math.PI
