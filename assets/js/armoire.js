@@ -40,7 +40,7 @@ const DASHBOARD_HEIGHT = 1;
 const DASHBOARD_WIDTH = 1.5;
 const IMAGE_HEIGHT = 1;
 const IMAGE_WIDTH = 1;            
-const CAPTION_HEIGHT = 0.075;
+const CAPTION_HEIGHT = 0.1;
 const CAPTION_WIDTH = 0.375;
 const MARGIN = 0.025;
 const PADDING = 0.025;
@@ -168,8 +168,10 @@ function init() {
 
     if (interactionType === 'orbitControls') {
         controls = new OrbitControls(camera, renderer.domElement);
-        controls.enableZoom = true;
         controls.target = new THREE.Vector3(3, 0, 0);
+        controls.enableZoom = false;
+        controls.screenSpacePanning = false;
+        controls.panSpeed = 2;
     } else if (interactionType === 'deviceOrientationControls') {
         controls = new DeviceOrientationControls(camera);
         createMovingControls();
