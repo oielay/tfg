@@ -190,7 +190,7 @@ function generate_3d_content($data, $is_category = false, $is_tag = false) {
                                 <h4>Controles de órbita</h4>
                                 <p>Utilice los siguientes controles para interactuar con el contenido en 3D:</p>
                                 <ul>
-                                    <li><strong>Movimiento:</strong> Utilice dos dedos y deslícelos en la dirección deseada.</li>
+                                    <li><strong>Movimiento:</strong> Utilice dos dedos y deslícelos en la dirección a la que desea mover el espacio visualizado.</li>
                                     <li><strong>Orientación y rotación:</strong> Utilice un dedo y deslícelo para rotar la vista de la cámara.</li>
                                     <li><strong>Pulsado:</strong> Pulse con un dedo en el lugar deseado.</li>
                                 </ul>
