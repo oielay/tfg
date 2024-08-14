@@ -169,6 +169,8 @@ function generate_3d_content($data, $is_category = false, $is_tag = false) {
 
             <div id="myMenu" class="menu-container">
                 <form method="get">
+                    <input type="hidden" name="3Denabled" value="true">
+                    <input type="hidden" name="3Dtype" value="<?php echo $_GET['3Dtype']; ?>">
                     <label for="interaction"><?php _e('Elige el método de interacción', 'myplugin'); ?></label>
                     <div>
                         <select name="interaction" id="interaction" onchange="this.form.submit()">
@@ -214,12 +216,14 @@ function generate_3d_content($data, $is_category = false, $is_tag = false) {
                 
                 <?php if (is_category() || is_tag()) : ?>
                     <form method="get" style="margin-top: 0;">
+                        <input type="hidden" name="3Denabled" value="true">
                         <label for="3Dtype"><?php _e('Elige el entorno 3D', 'myplugin'); ?></label>
                         <select name="3Dtype" id="environment" onchange="this.form.submit()">
                             <option value="armoire" <?php selected($current_environment, 'armoire'); ?>>Armería</option>
                             <option value="museum" <?php selected($current_environment, 'museum'); ?>>Museo</option>
                             <option value="galaxy" <?php selected($current_environment, 'galaxy'); ?>>Galaxia</option>
                         </select>
+                        <input type="hidden" name="interaction" value="<?php echo $_GET['interaction']; ?>">
                     </form>
                 <?php endif; ?>
                 
