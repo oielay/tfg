@@ -297,9 +297,16 @@ function generate_3d_content($data, $is_category = false, $is_tag = false) {
 }
 
 function add_default_url_params() {
-    if (is_admin() || !is_singular() && !is_category() && !is_tag()) {
+    if (is_admin() || !is_singular() && !is_category() && !is_tag())
         return;
-    }
+
+    global $wp;
+    $current_url = home_url($wp->request);
+    $current_query_params = $_GET;
+
+
+    if (!isset($current_query_params['3Denabled']) || $current_query_params['3Denabled'] === 'false')
+        return;
 
     $params = array(
         '3Denabled' => 'true',
@@ -313,14 +320,6 @@ function add_default_url_params() {
     } elseif (is_category() || is_tag()) {
         $params['3Dtype'] = get_term_meta(get_queried_object_id(), '_environment_option', true) ?: 'armoire';
         $params['interaction'] = get_term_meta(get_queried_object_id(), '_interaction_option', true) ?: 'orbitControls';
-    }
-
-    global $wp;
-    $current_url = home_url($wp->request);
-    $current_query_params = $_GET;
-
-    if (!isset($current_query_params['3Denabled'])) {
-        $current_query_params['3Denabled'] = 'true';
     }
 
     $new_params = array_merge($params, $current_query_params);
