@@ -75,6 +75,7 @@ html, body {
     top: 20px;
     left: 20px;
     z-index: 1001;
+    border-radius: 10px;
 }
 
 .menubtn:hover {
@@ -120,16 +121,6 @@ select {
     cursor: pointer;
 }
 
-.instructions-menu {
-    display: none;
-    background-color: #f9f9f9;
-    border: 1px solid #ddd;
-    padding: 10px;
-    margin-top: 5px;
-    border-radius: 5px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
 /************ MODALS ************/
 
 .modal-title {
@@ -140,7 +131,6 @@ select {
 	align-self: center;
 	justify-self: center;
 	align-items: center;
-
 	justify-content: center;
 	max-width: 700px;
 }
@@ -160,9 +150,9 @@ select {
 	margin-right: 10%
 }
 
-/************ MOVE BUTTONS ************/
+/************ JOYSTICK ************/
 
-.move-button {
+.joy {
     position: absolute;
     bottom: 50px;
     right: 50px;
@@ -177,6 +167,8 @@ select {
     align-items: center;
     text-align: center;
 }
+
+/************ UNSELECTABLE ************/
 
 .unselectable {
     -webkit-touch-callout: none;
@@ -225,4 +217,34 @@ select {
 .notification > img {
     width: 40px;
     aspect-ratio: 1/1;
+}
+
+/************ MEDIA QUERIES ************/
+
+@media (max-width: 1000px) {
+    .modal-content {
+        width: 100%;
+    }
+}
+
+@media (max-width: 768px) {
+    .nav-button {
+        width: 100px;
+        height: fit-content;
+        font-size: 12px;
+    }
+
+    .notification {
+        width: 90%;
+    }
+
+    .modal-content {
+        width: 100%;
+    }
+}
+
+@media (max-width: 600px) {
+    .modal-content {
+        width: 80%;
+    }
 }

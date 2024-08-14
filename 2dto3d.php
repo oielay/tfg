@@ -227,7 +227,7 @@ function generate_3d_content($data, $is_category = false, $is_tag = false) {
 
             <button id="menubtn" class="menubtn unselectable">&#9776; Abrir Menú</button>
 
-            <div id="joystick" class="move-button"></div>
+            <div id="joystick" class="joy"></div>
             
             <div id="notification" class="notification">
                 <img id="notification-image"></img>
