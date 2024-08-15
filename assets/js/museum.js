@@ -69,15 +69,17 @@ const fontJSON = 'https://oierlayana.com/tfg/wp-content/uploads/fonts/Roboto-msd
 // TASKS
 
 let userStudyTasks = {
-    numberOfTotalInteractions: 0,
-    numberOfLikesOrBuys: 0,
-    numberOfTextOverflows: 0,
     numberOfClicks: 0,
-    timeSpent: 0,
+    numberOfInteractions: 0,
+    numberOfLikesInOneMinute: 0,
+    timeSpentOnPage: 0,
+    timeSpentForJuramentada: 0,
+    timeSpentForSixgon: 0,
+    timeSpentForTostadora: 0,
 };
 
 window.addEventListener('beforeunload', function() {
-    userStudyTasks.timeSpent = Math.round(performance.now() / 1000);
+    userStudyTasks.timeSpentOnPage = Math.round(performance.now() / 1000);
 
     const xhr = new XMLHttpRequest();
     xhr.open('POST', '../../tasks.php', true);
@@ -124,6 +126,10 @@ window.addEventListener('load', init);
 window.addEventListener('resize', onWindowResize);
 
 window.addEventListener('click', () => {
+    userStudyTasks.numberOfClicks++;
+});
+
+window.addEventListener('touchstart', () => {
     userStudyTasks.numberOfClicks++;
 });
 
@@ -797,14 +803,12 @@ function addStatesLinks(link, item, title) {
             backgroundColor: new THREE.Color( 0xffffff ),
         },
         onSet: () => {
-            userStudyTasks.numberOfTotalInteractions++;
+            userStudyTasks.numberOfInteractions++;
 
             if (item.value !== 'No href')
                 window.open(item.value, '_self');
-            else if (item.text === 'Comprar' || item.text === 'Like') {
+            else if (item.text === 'Comprar' || item.text === 'Like') 
                 mostrarCompradoOLike(item.text, title);
-                userStudyTasks.numberOfLikesOrBuys++;
-            }
         }
     });
 
@@ -834,8 +838,7 @@ function addStatesText(text) {
         state: 'hidden-on',
         attributes: {hiddenOverflow: true},
         onSet: () => {
-            userStudyTasks.numberOfTotalInteractions++;
-            userStudyTasks.numberOfTextOverflows++;
+            userStudyTasks.numberOfInteractions++;
         }
     });
 
@@ -947,9 +950,19 @@ function mostrarCompradoOLike(text, title) {
     if (text === 'Comprar') {
         texto = 'Se ha comprado el producto ' + title;
         imagen = 'shopping-cart';
+
+        if (title === 'Juramentada')
+            userStudyTasks.timeSpentForJuramentada = Math.round(performance.now() / 1000);
+        else if (title === 'Sixgon')
+            userStudyTasks.timeSpentForSixgon = Math.round(performance.now() / 1000);
+        else if (title === 'Tostadora')
+            userStudyTasks.timeSpentForTostadora = Math.round(performance.now() / 1000);
     } else {
         texto = 'Se ha dado like a la publicación ' + title;
         imagen = 'like';
+
+        if (performance.now() <= 60000)
+            userStudyTasks.numberOfLikesInOneMinute++;
     }
 
     let notification = document.getElementById('notification');
