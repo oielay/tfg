@@ -72,15 +72,12 @@ let userStudyTasks = {
     numberOfClicks: 0,
     numberOfInteractions: 0,
     numberOfLikesInOneMinute: 0,
-    timeSpentOnPage: 0,
     timeSpentForJuramentada: 0,
     timeSpentForSixgon: 0,
     timeSpentForTostadora: 0,
 };
 
 window.addEventListener('beforeunload', function() {
-    userStudyTasks.timeSpentOnPage = Math.round(performance.now() / 1000);
-
     const xhr = new XMLHttpRequest();
     xhr.open('POST', '../../tasks.php', true);
     xhr.setRequestHeader('Content-Type', 'application/json');
