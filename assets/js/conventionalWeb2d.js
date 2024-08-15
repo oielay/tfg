@@ -20,36 +20,31 @@ function saveMetrics() {
     localStorage.setItem('timeSpentForTostadora', userStudyTasks.timeSpentForTostadora);
 }
 
-document.addEventListener('click', function() {
+document.addEventListener('click', function(event) {
     userStudyTasks.numberOfClicks++;
-    saveMetrics();
-});
 
-document.addEventListener('click', function(event) {
-    if (event.target.tagName === 'BUTTON' && (event.target.textContent === 'Like' || event.target.textContent === 'Comprar')) {
+    if (event.target.classList.contains('wp-block-button__link') && (event.target.textContent === 'Like')) {
         userStudyTasks.numberOfInteractions++;
-        saveMetrics();
     }
-});
 
-document.addEventListener('click', function(event) {
-    if (event.target.tagName === 'BUTTON' && event.target.textContent === 'Comprar') {
+    if (event.target.classList.contains('wp-block-button__link') && event.target.textContent === 'Comprar') {
+        userStudyTasks.numberOfInteractions++;
+
         let startTime = parseFloat(localStorage.getItem('categoryStartTime')) || performance.now();
         let endTime = performance.now();
         let timeSpent = (endTime - startTime) / 1000;
 
-        let postTitle = document.querySelector('h1').textContent;
+        let postTitle = document.querySelector('.wp-block-post-title').textContent;
 
-        if (postTitle.includes('Juramentada')) {
-            userStudyTasks.timeSpentForJuramentada += timeSpent;
-        } else if (postTitle.includes('Sixgon')) {
-            userStudyTasks.timeSpentForSixgon += timeSpent;
-        } else if (postTitle.includes('Tostadora')) {
-            userStudyTasks.timeSpentForTostadora += timeSpent;
-        }
-
-        saveMetrics();
+        if (postTitle.includes('Juramentada') && userStudyTasks.timeSpentForJuramentada === 0)
+                userStudyTasks.timeSpentForJuramentada = timeSpent;
+        else if (postTitle.includes('Sixgon') && userStudyTasks.timeSpentForSixgon === 0)
+            userStudyTasks.timeSpentForSixgon = timeSpent;
+        else if (postTitle.includes('Tostadora') && userStudyTasks.timeSpentForTostadora === 0)
+            userStudyTasks.timeSpentForTostadora = timeSpent;
     }
+
+    saveMetrics();
 });
 
 let likeCounter = 0;
@@ -73,25 +68,24 @@ setTimeout(function() {
 
 
 window.addEventListener('beforeunload', function(event) {
-    const currentURL = window.location.href;
-    let isNavigatingAway = false;
+    let currentOrigin = window.location.origin;
+    let referrerOrigin = document.referrer ? new URL(document.referrer).origin : '';
 
-    if (document.referrer && document.referrer.startsWith(window.location.origin)) {
-        isNavigatingAway = true;
-    }
-
-    if (!isNavigatingAway) {
+    if (referrerOrigin !== currentOrigin)
         sendData();
-    }
 });
 
 function sendData() {
-    if (navigator.sendBeacon) {
-        navigator.sendBeacon('../../tasks.php', JSON.stringify({ userStudyTasks }));
-    } else {
-        const xhr = new XMLHttpRequest();
-        xhr.open('POST', '../../tasks.php', true);
-        xhr.setRequestHeader('Content-Type', 'application/json');
-        xhr.send(JSON.stringify({ userStudyTasks }));
-    }
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', '../../tasks.php', true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.send(JSON.stringify({ userStudyTasks }));
+
+    localStorage.removeItem('categoryStartTime');
+    localStorage.removeItem('numberOfClicks');
+    localStorage.removeItem('numberOfInteractions');
+    localStorage.removeItem('numberOfLikesInOneMinute');
+    localStorage.removeItem('timeSpentForJuramentada');
+    localStorage.removeItem('timeSpentForSixgon');
+    localStorage.removeItem('timeSpentForTostadora');
 }

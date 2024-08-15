@@ -78,28 +78,20 @@ let userStudyTasks = {
 };
 
 window.addEventListener('beforeunload', function(event) {
-    const currentURL = window.location.href;
-    let isNavigatingAway = false;
+    let currentOrigin = window.location.origin;
+    let referrerOrigin = document.referrer ? new URL(document.referrer).origin : '';
 
-    if (document.referrer && document.referrer.startsWith(window.location.origin)) {
-        isNavigatingAway = true;
-    }
-
-    if (!isNavigatingAway) {
+    if (referrerOrigin !== currentOrigin)
         sendData();
-    }
 });
 
 function sendData() {
-    if (navigator.sendBeacon) {
-        navigator.sendBeacon('../../tasks.php', JSON.stringify({ userStudyTasks }));
-    } else {
-        const xhr = new XMLHttpRequest();
-        xhr.open('POST', '../../tasks.php', true);
-        xhr.setRequestHeader('Content-Type', 'application/json');
-        xhr.send(JSON.stringify({ userStudyTasks }));
-    }
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', '../../tasks.php', true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.send(JSON.stringify({ userStudyTasks }));
 }
+
 // Interaction and listeners
 
 const raycaster = new THREE.Raycaster();

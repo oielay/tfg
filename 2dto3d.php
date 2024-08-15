@@ -8,15 +8,16 @@ Author: Oier Layana
 
 header('Access-Control-Allow-Origin: *');
 
+function enqueue_conventional_web_2d_script() {
+    wp_enqueue_script('conventional-web-2d', plugin_dir_url(__FILE__) . 'assets/js/conventionalWeb2d.js', array(), '1.0', true);
+}
+add_action('wp_enqueue_scripts', 'enqueue_conventional_web_2d_script');
+
 function get_page_or_category_content() {
     if (!isset($_GET['3Denabled']) || $_GET['3Denabled'] !== 'true' ||
         !isset($_GET['3Dtype']) || empty($_GET['3Dtype']) ||
-        !isset($_GET['interaction']) || empty($_GET['interaction'])) {
-
-        echo '<script src="' . plugin_dir_url(__FILE__) . 'assets/js/conventionalWeb2d.js"></script>';
-
+        !isset($_GET['interaction']) || empty($_GET['interaction']))
         return;
-    }
 
     if (is_category()) {
         $category = get_queried_object();
