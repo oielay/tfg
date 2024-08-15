@@ -12,6 +12,9 @@ function get_page_or_category_content() {
     if (!isset($_GET['3Denabled']) || $_GET['3Denabled'] !== 'true' ||
         !isset($_GET['3Dtype']) || empty($_GET['3Dtype']) ||
         !isset($_GET['interaction']) || empty($_GET['interaction'])) {
+
+        echo '<script src="' . plugin_dir_url(__FILE__) . 'assets/js/conventionalWeb2d.js"></script>';
+
         return;
     }
 

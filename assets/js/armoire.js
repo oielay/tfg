@@ -77,12 +77,29 @@ let userStudyTasks = {
     timeSpentForTostadora: 0,
 };
 
-window.addEventListener('beforeunload', function() {
-    const xhr = new XMLHttpRequest();
-    xhr.open('POST', '../../tasks.php', true);
-    xhr.setRequestHeader('Content-Type', 'application/json');
-    xhr.send(JSON.stringify({ userStudyTasks }));
+window.addEventListener('beforeunload', function(event) {
+    const currentURL = window.location.href;
+    let isNavigatingAway = false;
+
+    if (document.referrer && document.referrer.startsWith(window.location.origin)) {
+        isNavigatingAway = true;
+    }
+
+    if (!isNavigatingAway) {
+        sendData();
+    }
 });
+
+function sendData() {
+    if (navigator.sendBeacon) {
+        navigator.sendBeacon('../../tasks.php', JSON.stringify({ userStudyTasks }));
+    } else {
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', '../../tasks.php', true);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.send(JSON.stringify({ userStudyTasks }));
+    }
+}
 
 // Interaction and listeners
 
