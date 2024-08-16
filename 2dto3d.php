@@ -268,6 +268,8 @@ function generate_3d_content($data, $is_category = false, $is_tag = false) {
                             }
 
                             foreach ($subgroups as $subgroup) {
+                                $subgroup = str_replace('-', ' ', $subgroup);
+                                
                                 if (strtolower($subgroup) === strtolower($data['name'])) {
                                     continue;
                                 }
