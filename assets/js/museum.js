@@ -77,15 +77,15 @@ let userStudyTasks = {
     timeSpentForTostadora: 0,
 };
 
-window.addEventListener('beforeunload', function(event) {
+window.addEventListener('beforeunload', function() {
     sendData();
 });
 
 function sendData() {
-    const xhr = new XMLHttpRequest();
-    xhr.open('POST', '../../tasks.php', true);
-    xhr.setRequestHeader('Content-Type', 'application/json');
-    xhr.send(JSON.stringify({ userStudyTasks }));
+    const data = JSON.stringify({ userStudyTasks });
+    const url = 'https://oierlayana.com/tfg/wp-content/plugins/plugin-tfg/tasks.php';
+
+    navigator.sendBeacon(url, data);
 }
 
 // Interaction and listeners

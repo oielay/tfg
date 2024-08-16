@@ -1,7 +1,7 @@
 <?php
 require_once('../../../wp-load.php');
 
-$userStudyTasks = json_decode(file_get_contents('php://input'), true);
+$userStudyTasks = json_decode(file_get_contents('php://input'), true)['userStudyTasks'];
 
 if ($userStudyTasks) {
     global $wpdb;
@@ -20,18 +20,16 @@ if ($userStudyTasks) {
             '%d', // number_of_clicks
             '%d', // number_of_interactions
             '%d', // number_of_likes_in_one_minute
-            '%d', // time_spent_for_juramentada
-            '%d', // time_spent_for_sixgon
-            '%d'  // time_spent_for_tostadora
+            '%f', // time_spent_for_juramentada
+            '%f', // time_spent_for_sixgon
+            '%f'  // time_spent_for_tostadora
         )
     );
 
-    if ($wpdb->insert_id) {
+    if ($wpdb->insert_id)
         echo "Datos insertados correctamente";
-    } else {
+    else
         echo "Error: " . $wpdb->last_error;
-    }
-} else {
-    echo "Datos no recibidos";
-}
+} else
+    echo "Error: No se han recibido datos";
 ?>

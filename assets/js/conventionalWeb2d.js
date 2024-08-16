@@ -32,17 +32,14 @@ document.addEventListener('click', function(event) {
     if (event.target.classList.contains('wp-block-button__link') && event.target.textContent === 'Comprar') {
         userStudyTasks.numberOfInteractions++;
 
-        let elapsedTime = parseFloat(localStorage.getItem('timeSpentTotal'));
-        userStudyTasks.timeSpentTotal = elapsedTime + performance.now() / 1000;
-
         let postTitle = document.querySelector('.wp-block-post-title').textContent;
 
         if (postTitle.includes('Juramentada') && userStudyTasks.timeSpentForJuramentada === 0)
-            userStudyTasks.timeSpentForJuramentada = userStudyTasks.timeSpentTotal;
+            userStudyTasks.timeSpentForJuramentada = parseFloat(localStorage.getItem('timeSpentTotal')) + performance.now() / 1000;
         else if (postTitle.includes('Sixgon') && userStudyTasks.timeSpentForSixgon === 0)
-            userStudyTasks.timeSpentForSixgon = userStudyTasks.timeSpentTotal;
+            userStudyTasks.timeSpentForSixgon = parseFloat(localStorage.getItem('timeSpentTotal')) + performance.now() / 1000;
         else if (postTitle.includes('Tostadora') && userStudyTasks.timeSpentForTostadora === 0)
-            userStudyTasks.timeSpentForTostadora = userStudyTasks.timeSpentTotal;
+            userStudyTasks.timeSpentForTostadora = parseFloat(localStorage.getItem('timeSpentTotal')) + performance.now() / 1000;
     }
 
     saveMetrics();
@@ -76,7 +73,7 @@ document.addEventListener("click", function(e) {
         link_was_clicked = true;
 }, true);
 
-window.onbeforeunload = function() {
+window.addEventListener("beforeunload", function () {
     if (link_was_clicked) {
         userStudyTasks.timeSpentTotal += userStudyTasks.timeSpentTotal == 0 ? (performance.now() - categoryStartTime) / 1000 : performance.now() / 1000;
         saveMetrics();
@@ -85,14 +82,15 @@ window.onbeforeunload = function() {
         return;
     }
 
+    saveMetrics();
     sendData();
-}
+});
 
 function sendData() {
-    const xhr = new XMLHttpRequest();
-    xhr.open('POST', '../../tasks.php', true);
-    xhr.setRequestHeader('Content-Type', 'application/json');
-    xhr.send(JSON.stringify({ userStudyTasks }));
+    const data = JSON.stringify({ userStudyTasks });
+    const url = 'https://oierlayana.com/tfg/wp-content/plugins/plugin-tfg/tasks.php';
+
+    navigator.sendBeacon(url, data);
 
     localStorage.removeItem('categoryStartTime');
     localStorage.removeItem('numberOfClicks');
