@@ -1,5 +1,5 @@
 if (!localStorage.getItem('categoryStartTime')) {
-    localStorage.setItem('categoryStartTime', performance.now());
+    localStorage.setItem('categoryStartTime', performance.now() / 1000);
 }
 
 let userStudyTasks = {
@@ -9,6 +9,7 @@ let userStudyTasks = {
     timeSpentForJuramentada: parseFloat(localStorage.getItem('timeSpentForJuramentada')) || 0,
     timeSpentForSixgon: parseFloat(localStorage.getItem('timeSpentForSixgon')) || 0,
     timeSpentForTostadora: parseFloat(localStorage.getItem('timeSpentForTostadora')) || 0,
+    timeSpentTotal: parseFloat(localStorage.getItem('timeSpentTotal')) || 0
 };
 
 function saveMetrics() {
@@ -18,6 +19,7 @@ function saveMetrics() {
     localStorage.setItem('timeSpentForJuramentada', userStudyTasks.timeSpentForJuramentada);
     localStorage.setItem('timeSpentForSixgon', userStudyTasks.timeSpentForSixgon);
     localStorage.setItem('timeSpentForTostadora', userStudyTasks.timeSpentForTostadora);
+    localStorage.setItem('timeSpentTotal', userStudyTasks.timeSpentTotal);
 }
 
 document.addEventListener('click', function(event) {
@@ -30,18 +32,17 @@ document.addEventListener('click', function(event) {
     if (event.target.classList.contains('wp-block-button__link') && event.target.textContent === 'Comprar') {
         userStudyTasks.numberOfInteractions++;
 
-        let startTime = parseFloat(localStorage.getItem('categoryStartTime')) || performance.now();
-        let endTime = performance.now();
-        let timeSpent = (endTime - startTime) / 1000;
+        let elapsedTime = parseFloat(localStorage.getItem('timeSpentTotal'));
+        userStudyTasks.timeSpentTotal = elapsedTime + performance.now() / 1000;
 
         let postTitle = document.querySelector('.wp-block-post-title').textContent;
 
         if (postTitle.includes('Juramentada') && userStudyTasks.timeSpentForJuramentada === 0)
-                userStudyTasks.timeSpentForJuramentada = timeSpent;
+            userStudyTasks.timeSpentForJuramentada = userStudyTasks.timeSpentTotal;
         else if (postTitle.includes('Sixgon') && userStudyTasks.timeSpentForSixgon === 0)
-            userStudyTasks.timeSpentForSixgon = timeSpent;
+            userStudyTasks.timeSpentForSixgon = userStudyTasks.timeSpentTotal;
         else if (postTitle.includes('Tostadora') && userStudyTasks.timeSpentForTostadora === 0)
-            userStudyTasks.timeSpentForTostadora = timeSpent;
+            userStudyTasks.timeSpentForTostadora = userStudyTasks.timeSpentTotal;
     }
 
     saveMetrics();
@@ -51,7 +52,7 @@ let likeCounter = 0;
 let categoryStartTime = parseFloat(localStorage.getItem('categoryStartTime')) || performance.now();
 
 document.addEventListener('click', function(event) {
-    if (event.target.tagName === 'BUTTON' && event.target.textContent === 'Like') {
+    if (event.target.classList.contains('wp-block-button__link') && event.target.textContent === 'Like') {
         let currentTime = performance.now();
         if ((currentTime - categoryStartTime) <= 60000) {
             likeCounter++;
@@ -67,13 +68,25 @@ setTimeout(function() {
 }, Math.max(0, 60000 - (performance.now() - categoryStartTime)));
 
 
-window.addEventListener('beforeunload', function(event) {
-    let currentOrigin = window.location.origin;
-    let referrerOrigin = document.referrer ? new URL(document.referrer).origin : '';
+var link_was_clicked = false;
+document.addEventListener("click", function(e) {
+    const hasClass = Array.from(e.target.classList).some(className => className.includes('post-navigation-link__'));
 
-    if (referrerOrigin !== currentOrigin)
-        sendData();
-});
+    if (e.target.nodeName.toLowerCase() === 'a' && e.target.href || hasClass)
+        link_was_clicked = true;
+}, true);
+
+window.onbeforeunload = function() {
+    if (link_was_clicked) {
+        userStudyTasks.timeSpentTotal += userStudyTasks.timeSpentTotal == 0 ? (performance.now() - categoryStartTime) / 1000 : performance.now() / 1000;
+        saveMetrics();
+        
+        link_was_clicked = false;
+        return;
+    }
+
+    sendData();
+}
 
 function sendData() {
     const xhr = new XMLHttpRequest();
@@ -88,4 +101,5 @@ function sendData() {
     localStorage.removeItem('timeSpentForJuramentada');
     localStorage.removeItem('timeSpentForSixgon');
     localStorage.removeItem('timeSpentForTostadora');
+    localStorage.removeItem('timeSpentTotal');
 }

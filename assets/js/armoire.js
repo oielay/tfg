@@ -78,11 +78,7 @@ let userStudyTasks = {
 };
 
 window.addEventListener('beforeunload', function(event) {
-    let currentOrigin = window.location.origin;
-    let referrerOrigin = document.referrer ? new URL(document.referrer).origin : '';
-
-    if (referrerOrigin !== currentOrigin)
-        sendData();
+    sendData();
 });
 
 function sendData() {
