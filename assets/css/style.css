@@ -16,6 +16,7 @@ html, body {
     position: fixed;
     gap: 1%;
     margin-top: 1%;
+    z-index: 999;
 }
 
 .nav-button {

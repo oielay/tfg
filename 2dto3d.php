@@ -135,6 +135,11 @@ function generate_3d_content($data, $is_category = false, $is_tag = false) {
                 <meta thumbnail="<?php echo $data['thumbnail']; ?>"></meta>
             <?php endif; ?>
             <title><?php echo $is_category || $is_tag ? $data['name'] : $data['title']; ?></title>
+
+            <?php if ($_GET['3Dtype'] === 'galaxy') : ?>
+                <script src="//unpkg.com/3d-force-graph"></script>
+            <?php endif; ?>
+
             <script id="3d-js-libraries" type="importmap">
                 {
                     "imports": {
@@ -172,54 +177,56 @@ function generate_3d_content($data, $is_category = false, $is_tag = false) {
             </div>
 
             <div id="myMenu" class="menu-container">
-                <form method="get">
-                    <input type="hidden" name="3Denabled" value="true">
-                    <input type="hidden" name="3Dtype" value="<?php echo $_GET['3Dtype']; ?>">
-                    <label for="interaction"><?php _e('Elige el método de interacción', 'myplugin'); ?></label>
-                    <div>
-                        <select name="interaction" id="interaction" onchange="this.form.submit()">
-                            <option value="orbitControls" <?php selected($current_interaction, 'orbitControls'); ?>>Controles de órbita</option>
-                            <option value="deviceOrientationControls" <?php selected($current_interaction, 'deviceOrientationControls'); ?>>Controles de orientación de dispositivo</option>
-                        </select>
-                        <span class="interaction-info" data-bs-toggle="modal" data-bs-target="#staticBackdropInstructions">&#8505;</span>
-                    </div>
-                </form>
+                <?php if ($_GET['3Dtype'] !== 'galaxy') : ?>
+                    <form method="get">
+                        <input type="hidden" name="3Denabled" value="true">
+                        <input type="hidden" name="3Dtype" value="<?php echo $_GET['3Dtype']; ?>">
+                        <label for="interaction"><?php _e('Elige el método de interacción', 'myplugin'); ?></label>
+                        <div>
+                            <select name="interaction" id="interaction" onchange="this.form.submit()">
+                                <option value="orbitControls" <?php selected($current_interaction, 'orbitControls'); ?>>Controles de órbita</option>
+                                <option value="deviceOrientationControls" <?php selected($current_interaction, 'deviceOrientationControls'); ?>>Controles de orientación de dispositivo</option>
+                            </select>
+                            <span class="interaction-info" data-bs-toggle="modal" data-bs-target="#staticBackdropInstructions">&#8505;</span>
+                        </div>
+                    </form>
 
-                <div class="modal fade" id="staticBackdropInstructions" data-bs-backdrop="false" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-                    <div class="modal-dialog modal-xl">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h2 class="modal-title" id="staticBackdropLabel">INSTRUCCIONES</h2>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                                <h4>Controles de órbita</h4>
-                                <p>Utilice los siguientes controles para interactuar con el contenido en 3D:</p>
-                                <ul>
-                                    <li><strong>Movimiento:</strong> Utilice dos dedos y deslícelos en la dirección a la que desea mover el espacio visualizado.</li>
-                                    <li><strong>Orientación y rotación:</strong> Utilice un dedo y deslícelo para rotar la vista de la cámara.</li>
-                                    <li><strong>Pulsado:</strong> Pulse con un dedo en el lugar deseado.</li>
-                                </ul>
+                    <div class="modal fade" id="staticBackdropInstructions" data-bs-backdrop="false" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-xl">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h2 class="modal-title" id="staticBackdropLabel">INSTRUCCIONES</h2>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <h4>Controles de órbita</h4>
+                                    <p>Utilice los siguientes controles para interactuar con el contenido en 3D:</p>
+                                    <ul>
+                                        <li><strong>Movimiento:</strong> Utilice dos dedos y deslícelos en la dirección a la que desea mover el espacio visualizado.</li>
+                                        <li><strong>Orientación y rotación:</strong> Utilice un dedo y deslícelo para rotar la vista de la cámara.</li>
+                                        <li><strong>Pulsado:</strong> Pulse con un dedo en el lugar deseado.</li>
+                                    </ul>
 
-                                <br><br>
+                                    <br><br>
 
-                                <h4>Controles de orientación de dispositivo</h4>
-                                <p>Utilice los siguientes controles para interactuar con el contenido en 3D:</p>
-                                <ul>
-                                    <li><strong>Movimiento:</strong> Utilize los botones de adelante y atrás para avanzar y retroceder en el espacio.</li>
-                                    <li><strong>Orientación y rotación:</strong> Incline o gire su dispositivo para cambiar la vista de la cámara.</li>
-                                    <li><strong>Pulsado:</strong> Pulse con un dedo en el lugar deseado.</li>
-                                </ul>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Cerrar</button>
+                                    <h4>Controles de orientación de dispositivo</h4>
+                                    <p>Utilice los siguientes controles para interactuar con el contenido en 3D:</p>
+                                    <ul>
+                                        <li><strong>Movimiento:</strong> Utilize los botones de adelante y atrás para avanzar y retroceder en el espacio.</li>
+                                        <li><strong>Orientación y rotación:</strong> Incline o gire su dispositivo para cambiar la vista de la cámara.</li>
+                                        <li><strong>Pulsado:</strong> Pulse con un dedo en el lugar deseado.</li>
+                                    </ul>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Cerrar</button>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
+                <?php endif; ?>
                 
                 <?php if (is_category() || is_tag()) : ?>
-                    <form method="get" style="margin-top: 0;">
+                    <form id="3Denv" method="get">
                         <input type="hidden" name="3Denabled" value="true">
                         <label for="3Dtype"><?php _e('Elige el entorno 3D', 'myplugin'); ?></label>
                         <select name="3Dtype" id="environment" onchange="this.form.submit()">
@@ -230,7 +237,6 @@ function generate_3d_content($data, $is_category = false, $is_tag = false) {
                         <input type="hidden" name="interaction" value="<?php echo $_GET['interaction']; ?>">
                     </form>
                 <?php endif; ?>
-                
             </div>
 
             <button id="menubtn" class="menubtn unselectable">&#9776; Abrir Menú</button>
@@ -294,9 +300,11 @@ function generate_3d_content($data, $is_category = false, $is_tag = false) {
 
                         echo '<script>var content = ' . json_encode($groupedPosts) . ';</script>';
                         break;
-                    // case 'galaxy':
-                    //     echo '<script src="' . plugin_dir_url(__FILE__) . 'assets/js/galaxy.js"></script>';
-                    //     break;
+                    case 'galaxy':
+                        echo '<div id="3d-graph" style="z-index: -1000;"></div>';
+                        echo '<script type="module" src="' . plugin_dir_url(__FILE__) . 'assets/js/galaxy.js"></script>';
+                        echo '<script>var content = ' . json_encode($data['posts']) . ';</script>';
+                        break;
                 }
             }
 ?>
@@ -331,6 +339,9 @@ function add_default_url_params() {
         $params['3Dtype'] = get_term_meta(get_queried_object_id(), '_environment_option', true) ?: 'armoire';
         $params['interaction'] = get_term_meta(get_queried_object_id(), '_interaction_option', true) ?: 'orbitControls';
     }
+
+    if ($params['3Dtype'] === 'galaxy')
+        $params['interaction'] = 'orbitControls';
 
     $new_params = array_merge($params, $current_query_params);
 
