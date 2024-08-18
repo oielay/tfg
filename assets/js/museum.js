@@ -78,7 +78,7 @@ let userStudyTasks = {
 };
 
 window.addEventListener('beforeunload', function() {
-    //sendData();
+    sendData();
 });
 
 function sendData() {
@@ -955,11 +955,11 @@ function mostrarCompradoOLike(text, title) {
         imagen = 'shopping-cart';
 
         if (title === 'Juramentada')
-            userStudyTasks.timeSpentForJuramentada = Math.round(performance.now() / 1000);
+            userStudyTasks.timeSpentForJuramentada = performance.now() / 1000;
         else if (title === 'Sixgon')
-            userStudyTasks.timeSpentForSixgon = Math.round(performance.now() / 1000);
+            userStudyTasks.timeSpentForSixgon = performance.now() / 1000;
         else if (title === 'Tostadora')
-            userStudyTasks.timeSpentForTostadora = Math.round(performance.now() / 1000);
+            userStudyTasks.timeSpentForTostadora = performance.now() / 1000;
     } else {
         texto = 'Se ha dado like a la publicación ' + title;
         imagen = 'like';
