@@ -7,8 +7,9 @@ if (!modal)  {
     envForm.style.marginTop = "10%";
     menubtn.style.backgroundColor = "rgba(255, 255, 255, 0.7)";
     menubtn.style.color = "black";
-} else
+} else if (envForm) {
     envForm.style.marginTop = "0";
+}
 
 let openMenuText;
 function updateMenuText() {

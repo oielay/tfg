@@ -78,7 +78,7 @@ let userStudyTasks = {
 };
 
 window.addEventListener('beforeunload', function() {
-    sendData();
+    //sendData();
 });
 
 function sendData() {

@@ -90,7 +90,7 @@ function sendData() {
     const data = JSON.stringify({ userStudyTasks });
     const url = 'https://oierlayana.com/tfg/wp-content/plugins/plugin-tfg/tasks.php';
 
-    navigator.sendBeacon(url, data);
+    //navigator.sendBeacon(url, data);
 
     localStorage.removeItem('categoryStartTime');
     localStorage.removeItem('numberOfClicks');
