@@ -138,6 +138,12 @@ function generate_3d_content($data, $is_category = false, $is_tag = false) {
 
             <?php if ($_GET['3Dtype'] === 'galaxy') : ?>
                 <script src="//unpkg.com/3d-force-graph"></script>
+            <?php else : ?>
+                <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet"
+                    integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+                <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"
+                    integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN"
+                    crossorigin="anonymous"></script>
             <?php endif; ?>
 
             <script id="3d-js-libraries" type="importmap">
@@ -149,12 +155,6 @@ function generate_3d_content($data, $is_category = false, $is_tag = false) {
                     }
                 }
             </script>
-
-            <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet"
-                  integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
-            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"
-                  integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN"
-                  crossorigin="anonymous"></script>
 
             <link rel="stylesheet" href="<?php echo plugin_dir_url(__FILE__) . 'assets/css/style.css'; ?>">
             <script type="module" src="<?php echo plugin_dir_url(__FILE__) . 'assets/js/3d-menu.js'; ?>" defer></script>
@@ -303,6 +303,40 @@ function generate_3d_content($data, $is_category = false, $is_tag = false) {
                     case 'galaxy':
                         echo '<div id="3d-graph" style="z-index: -1000;"></div>';
                         echo '<script type="module" src="' . plugin_dir_url(__FILE__) . 'assets/js/galaxy.js"></script>';
+
+                        $groupValues = range(0, count($data['posts']) - 1);
+
+                        shuffle($groupValues);
+
+                        $links = array();
+                        foreach ($data['posts'] as $post) {
+                            $node = array(
+                                'id' => $post['title'],
+                                'group' => array_pop($groupValues),
+                                'content' => $post['content'],
+                                'url' => get_permalink($post['id'])
+                            );
+                            $nodes[] = $node;
+
+                            if (isset($post['links'])) {
+                                foreach ($post['links'] as $link) {
+                                    $linkNode = array(
+                                        'source' => $post['id'],
+                                        'target' => $link
+                                    );
+                                    $links[] = $linkNode;
+                                }
+                            }
+                        }
+
+                        $graphData = array(
+                            'nodes' => $nodes,
+                            'links' => $links
+                        );
+
+                        $jsonData = json_encode($graphData);
+                        file_put_contents(plugin_dir_path(__FILE__) . 'assets/galaxy-nodes.json', $jsonData);
+
                         echo '<script>var content = ' . json_encode($data['posts']) . ';</script>';
                         break;
                 }
