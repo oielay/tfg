@@ -455,28 +455,30 @@ function makeTextPanel(content, title, panelPosition, panelRotation) {
                     captionsBlock.add(captionsSubBlock);
                 }
 
-                let extraCaption = new ThreeMeshUI.Block({
-                    height: CAPTION_HEIGHT,
-                    width: CAPTION_WIDTH,
-                    margin: MARGIN / 10,
-                    textAlign: 'center',
-                    justifyContent: 'center',
-                    backgroundColor: new THREE.Color(0xFFFFFF),
-                });
+                if (numLinks % 2 !== 0) {
+                    let extraCaption = new ThreeMeshUI.Block({
+                        height: CAPTION_HEIGHT,
+                        width: CAPTION_WIDTH,
+                        margin: MARGIN / 10,
+                        textAlign: 'center',
+                        justifyContent: 'center',
+                        backgroundColor: new THREE.Color(0xFFFFFF),
+                    });
 
-                extraCaption.add(
-                    new ThreeMeshUI.Text({
-                        content: normalizeText(links[numLinks - 1].text),
-                        fontSize: 0.03,
-                        fontColor: new THREE.Color(0x0000FF),
-                    })
-                );
+                    extraCaption.add(
+                        new ThreeMeshUI.Text({
+                            content: normalizeText(links[numLinks - 1].text),
+                            fontSize: 0.03,
+                            fontColor: new THREE.Color(0x0000FF),
+                        })
+                    );
 
-                extraCaption = addStatesLinks(extraCaption, links[numLinks - 1], title);
+                    extraCaption = addStatesLinks(extraCaption, links[numLinks - 1], title);
 
-                captionsBlock.add(extraCaption);
+                    captionsBlock.add(extraCaption);
 
-                objsToIntersect.push(extraCaption);
+                    objsToIntersect.push(extraCaption);
+                }
 
                 leftSubBlock.add(captionsBlock);
             }

@@ -37,14 +37,28 @@ function get_page_or_category_content() {
 
         while ($query->have_posts()) {
             $query->the_post();
+            
+            $content = get_the_content();
+
+            $links = wp_extract_urls($content);
+    
+            $filtered_links = array_filter($links, function($url) {
+                $image_extensions = array('jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg');
+                
+                $extension = pathinfo(parse_url($url, PHP_URL_PATH), PATHINFO_EXTENSION);
+                
+                return !in_array(strtolower($extension), $image_extensions);
+            });
+            
             $data['posts'][] = array(
                 'id' => get_the_ID(),
                 'title' => get_the_title(),
                 'excerpt' => get_the_excerpt(),
-                'content' => get_the_content(),
+                'content' => $content,
                 'thumbnail' => get_the_post_thumbnail_url(),
                 'date' => get_the_date(),
-                'author' => get_the_author()
+                'author' => get_the_author(),
+                'links' => $filtered_links
             );
         }
 
@@ -67,14 +81,28 @@ function get_page_or_category_content() {
 
         while ($query->have_posts()) {
             $query->the_post();
+            
+            $content = get_the_content();
+
+            $links = wp_extract_urls($content);
+    
+            $filtered_links = array_filter($links, function($url) {
+                $image_extensions = array('jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg');
+                
+                $extension = pathinfo(parse_url($url, PHP_URL_PATH), PATHINFO_EXTENSION);
+                
+                return !in_array(strtolower($extension), $image_extensions);
+            });
+            
             $data['posts'][] = array(
                 'id' => get_the_ID(),
                 'title' => get_the_title(),
                 'excerpt' => get_the_excerpt(),
-                'content' => get_the_content(),
+                'content' => $content,
                 'thumbnail' => get_the_post_thumbnail_url(),
                 'date' => get_the_date(),
-                'author' => get_the_author()
+                'author' => get_the_author(),
+                'links' => $filtered_links
             );
         }
 
@@ -273,10 +301,8 @@ function generate_3d_content($data, $is_category = false, $is_tag = false) {
                                 $subgroups = wp_get_post_categories($post['id'], array('fields' => 'slugs'));
                             }
 
-                            foreach ($subgroups as $subgroup) {
-                                $subgroup = str_replace('-', ' ', $subgroup);
-                                
-                                if (strtolower($subgroup) === strtolower($data['name'])) {
+                            foreach ($subgroups as $subgroup) {                                
+                                if (strtolower(str_replace('-', ' ', $subgroup)) === strtolower(str_replace('-', ' ', $data['name']))) {
                                     continue;
                                 }
                                 
@@ -321,8 +347,8 @@ function generate_3d_content($data, $is_category = false, $is_tag = false) {
                             if (isset($post['links'])) {
                                 foreach ($post['links'] as $link) {
                                     $linkNode = array(
-                                        'source' => $post['id'],
-                                        'target' => $link
+                                        'source' => $post['title'],
+                                        'target' => get_the_title(url_to_postid($link)),
                                     );
                                     $links[] = $linkNode;
                                 }
