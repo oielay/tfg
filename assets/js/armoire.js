@@ -77,7 +77,7 @@ let userStudyTasks = {
     timeSpentForTostadora: 0,
 };
 
-window.addEventListener('beforeunload', function() {
+window.addEventListener('visibilitychange', function() {
     sendData();
 });
 

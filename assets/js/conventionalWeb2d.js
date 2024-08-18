@@ -73,7 +73,7 @@ document.addEventListener("click", function(e) {
         link_was_clicked = true;
 }, true);
 
-window.addEventListener("beforeunload", function () {
+window.addEventListener('visibilitychange', function () {
     if (link_was_clicked) {
         userStudyTasks.timeSpentTotal += userStudyTasks.timeSpentTotal == 0 ? (performance.now() - categoryStartTime) / 1000 : performance.now() / 1000;
         saveMetrics();
