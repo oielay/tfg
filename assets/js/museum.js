@@ -11,7 +11,7 @@ let scene, camera, renderer, controls;
 let objsToIntersect = [], objsToOverflow = [], textPanels = [];
 let joystickData = { x: 0, y: 0 };
 let interactionType = window.location.search.substring(1).split("&").find(param => param.includes('interaction=')).split('=')[1];
-let environmentType = window.location.search.substring(1).split("&").find(param => param.includes('environment=')).split('=')[1];
+let environmentType = window.location.search.substring(1).split("&").find(param => param.includes('3Dtype=')).split('=')[1];
 
 // Obtain content from wordpress page
 
@@ -995,7 +995,7 @@ function createMovingControls() {
 }
 
 function moveCamera() {
-    const moveSpeed = 0.0005;
+    const moveSpeed = 0.002;
 
     const moveVector = new THREE.Vector3(
         joystickData.x * moveSpeed,
