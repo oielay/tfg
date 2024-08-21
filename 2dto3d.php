@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: 2dto3d
-Description: Este es un plugin personalizado que permite visualizar posts y categorias en 3D
+Description: Este es un plugin personalizado que permite visualizar posts y categorias en 3D. Proporciona una experiencia interactiva y envolvente para los usuarios al explorar el contenido de su sitio web de WordPress. El plugin utiliza tecnologías como WebGL y Three.js para renderizar los elementos en 3D y ofrece diferentes entornos 3D, como una armería o un museo, para que los usuarios elijan. Además, admite diferentes métodos de interacción, como controles de órbita y controles de orientación de dispositivo, para que los usuarios puedan explorar el contenido de manera intuitiva. Este plugin es ideal para sitios web que desean agregar un toque visualmente atractivo y único a su contenido. 
 Version: 1.0
 Author: Oier Layana
 */
