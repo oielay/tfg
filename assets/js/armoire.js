@@ -11,6 +11,7 @@ let scene, camera, renderer, controls;
 let objsToIntersect = [], objsToOverflow = [], textPanels = [];
 let joystickData = { x: 0, y: 0 };
 let interactionType = window.location.search.substring(1).split("&").find(param => param.includes('interaction=')).split('=')[1];
+let environmentType = window.location.search.substring(1).split("&").find(param => param.includes('environment=')).split('=')[1];
 
 // Obtain content from wordpress page
 
@@ -75,6 +76,8 @@ let userStudyTasks = {
     timeSpentForJuramentada: 0,
     timeSpentForSixgon: 0,
     timeSpentForTostadora: 0,
+    environment: environmentType,
+    interaction: interactionType
 };
 
 window.addEventListener('visibilitychange', function() {

@@ -14,7 +14,9 @@ if ($userStudyTasks) {
             'number_of_likes_in_one_minute' => $userStudyTasks['numberOfLikesInOneMinute'],
             'time_spent_for_juramentada' => $userStudyTasks['timeSpentForJuramentada'],
             'time_spent_for_sixgon' => $userStudyTasks['timeSpentForSixgon'],
-            'time_spent_for_tostadora' => $userStudyTasks['timeSpentForTostadora']
+            'time_spent_for_tostadora' => $userStudyTasks['timeSpentForTostadora'],
+            'environment' => $userStudyTasks['environment'],
+            'interaction' => $userStudyTasks['interaction'],
         ),
         array(
             '%d', // number_of_clicks
@@ -22,7 +24,10 @@ if ($userStudyTasks) {
             '%d', // number_of_likes_in_one_minute
             '%f', // time_spent_for_juramentada
             '%f', // time_spent_for_sixgon
-            '%f'  // time_spent_for_tostadora
+            '%f', // time_spent_for_tostadora
+            '%s', // environment
+            '%s'  // interaction
+
         )
     );
 

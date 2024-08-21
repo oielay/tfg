@@ -9,7 +9,9 @@ let userStudyTasks = {
     timeSpentForJuramentada: parseFloat(localStorage.getItem('timeSpentForJuramentada')) || 0,
     timeSpentForSixgon: parseFloat(localStorage.getItem('timeSpentForSixgon')) || 0,
     timeSpentForTostadora: parseFloat(localStorage.getItem('timeSpentForTostadora')) || 0,
-    timeSpentTotal: parseFloat(localStorage.getItem('timeSpentTotal')) || 0
+    timeSpentTotal: parseFloat(localStorage.getItem('timeSpentTotal')) || 0,
+    environment: 'conventionalWeb2d',
+    interaction: 'orbitControls'
 };
 
 function saveMetrics() {
