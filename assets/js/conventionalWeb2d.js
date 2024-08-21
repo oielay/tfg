@@ -11,7 +11,7 @@ let userStudyTasks = {
     timeSpentForTostadora: parseFloat(localStorage.getItem('timeSpentForTostadora')) || 0,
     timeSpentTotal: parseFloat(localStorage.getItem('timeSpentTotal')) || 0,
     environment: 'conventionalWeb2d',
-    interaction: 'orbitControls'
+    interaction: 'conventionalControls2d'
 };
 
 function saveMetrics() {
