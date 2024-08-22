@@ -9,7 +9,8 @@ Author: Oier Layana
 header('Access-Control-Allow-Origin: *');
 
 function enqueue_conventional_web_2d_script() {
-    wp_enqueue_script('conventional-web-2d', plugin_dir_url(__FILE__) . 'assets/js/conventionalWeb2d.js', array(), '1.0', true);
+    if (!isset($_GET['3Denabled']) || $_GET['3Denabled'] !== 'true')
+        wp_enqueue_script('conventional-web-2d', plugin_dir_url(__FILE__) . 'assets/js/conventionalWeb2d.js', array(), '1.0', true);
 }
 add_action('wp_enqueue_scripts', 'enqueue_conventional_web_2d_script');
 
