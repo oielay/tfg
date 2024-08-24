@@ -12,6 +12,7 @@ let objsToIntersect = [], objsToOverflow = [], textPanels = [];
 let joystickData = { x: 0, y: 0 };
 let interactionType = window.location.search.substring(1).split("&").find(param => param.includes('interaction=')).split('=')[1];
 let environmentType = window.location.search.substring(1).split("&").find(param => param.includes('3Dtype=')).split('=')[1];
+let givenLikePosts = [];
 
 // Obtain content from wordpress page
 
@@ -967,8 +968,10 @@ function mostrarCompradoOLike(text, title) {
         texto = 'Se ha dado like a la publicación ' + title;
         imagen = 'like';
 
-        if (performance.now() <= 60000)
+        if (performance.now() <= 60000 && !givenLikePosts.includes(title)) {
             userStudyTasks.numberOfLikesInOneMinute++;
+            givenLikePosts.push(title);
+        }
     }
 
     let notification = document.getElementById('notification');

@@ -6,6 +6,7 @@ let userStudyTasks = {
     numberOfClicks: parseInt(localStorage.getItem('numberOfClicks')) || 0,
     numberOfInteractions: parseInt(localStorage.getItem('numberOfInteractions')) || 0,
     numberOfLikesInOneMinute: parseInt(localStorage.getItem('numberOfLikesInOneMinute')) || 0,
+    givenLikePosts: JSON.parse(localStorage.getItem('givenLikePosts')) || [],
     timeSpentForJuramentada: parseFloat(localStorage.getItem('timeSpentForJuramentada')) || 0,
     timeSpentForSixgon: parseFloat(localStorage.getItem('timeSpentForSixgon')) || 0,
     timeSpentForTostadora: parseFloat(localStorage.getItem('timeSpentForTostadora')) || 0,
@@ -18,6 +19,7 @@ function saveMetrics() {
     localStorage.setItem('numberOfClicks', userStudyTasks.numberOfClicks);
     localStorage.setItem('numberOfInteractions', userStudyTasks.numberOfInteractions);
     localStorage.setItem('numberOfLikesInOneMinute', userStudyTasks.numberOfLikesInOneMinute);
+    localStorage.setItem('givenLikePosts', JSON.stringify(userStudyTasks.givenLikePosts));
     localStorage.setItem('timeSpentForJuramentada', userStudyTasks.timeSpentForJuramentada);
     localStorage.setItem('timeSpentForSixgon', userStudyTasks.timeSpentForSixgon);
     localStorage.setItem('timeSpentForTostadora', userStudyTasks.timeSpentForTostadora);
@@ -48,24 +50,17 @@ document.addEventListener('click', function(event) {
 });
 
 let likeCounter = 0;
-let categoryStartTime = parseFloat(localStorage.getItem('categoryStartTime')) || performance.now();
 
 document.addEventListener('click', function(event) {
     if (event.target.classList.contains('wp-block-button__link') && event.target.textContent === 'Like') {
-        let currentTime = performance.now();
-        if ((currentTime - categoryStartTime) <= 60000) {
-            likeCounter++;
-        }
+        let currentTime = userStudyTasks.timeSpentTotal + performance.now() / 1000;
+
+        let postTitle = document.querySelector('.wp-block-post-title').textContent;
+
+        if (currentTime <= 60 && !userStudyTasks.givenLikePosts.includes(postTitle))
+            userStudyTasks.givenLikePosts.push(postTitle);
     }
 });
-
-setTimeout(function() {
-    if (likeCounter > 0) {
-        userStudyTasks.numberOfLikesInOneMinute = likeCounter;
-        saveMetrics();
-    }
-}, Math.max(0, 60000 - (performance.now() - categoryStartTime)));
-
 
 var link_was_clicked = false;
 document.addEventListener("click", function(e) {
@@ -75,6 +70,7 @@ document.addEventListener("click", function(e) {
         link_was_clicked = true;
 }, true);
 
+let categoryStartTime = parseFloat(localStorage.getItem('categoryStartTime')) || performance.now();
 window.addEventListener('visibilitychange', function () {
     if (link_was_clicked) {
         userStudyTasks.timeSpentTotal += userStudyTasks.timeSpentTotal == 0 ? (performance.now() - categoryStartTime) / 1000 : performance.now() / 1000;
@@ -84,6 +80,7 @@ window.addEventListener('visibilitychange', function () {
         return;
     }
 
+    userStudyTasks.numberOfLikesInOneMinute = userStudyTasks.givenLikePosts.length;
     saveMetrics();
     sendData();
 });
@@ -98,6 +95,7 @@ function sendData() {
     localStorage.removeItem('numberOfClicks');
     localStorage.removeItem('numberOfInteractions');
     localStorage.removeItem('numberOfLikesInOneMinute');
+    localStorage.removeItem('givenLikePosts');
     localStorage.removeItem('timeSpentForJuramentada');
     localStorage.removeItem('timeSpentForSixgon');
     localStorage.removeItem('timeSpentForTostadora');
