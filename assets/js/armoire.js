@@ -59,7 +59,7 @@ const baseRadius = 5;
 const radiusIncrement = 5;
 const circleSpeeds = [];
 for (let i = 0; i < newContent.length; i++) {
-    const speed = Math.random();
+    const speed = Math.random() / 2;
     circleSpeeds.push(speed);
 }
 
