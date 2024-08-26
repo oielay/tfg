@@ -82,7 +82,8 @@ let userStudyTasks = {
 };
 
 window.addEventListener('visibilitychange', function() {
-    sendData();
+    //if (document.visibilityState === "hidden")
+        //sendData();
 });
 
 function sendData() {
