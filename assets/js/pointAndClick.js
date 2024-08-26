@@ -619,9 +619,17 @@ function addStatesLinks(link, item, title) {
         },
         onSet: () => {
             if (item.value !== 'No href')
-                window.open(item.value, '_self');
-            else if (item.text === 'Comprar' || item.text === 'Like')
-                mostrarCompradoOLike(item.text, title);
+                if (item.value.includes('http')) {
+                    const currentOrigin = window.location.origin;
+                    const itemOrigin = new URL(item.value).origin;
+
+                    if (currentOrigin === itemOrigin)
+                        window.open(item.value + '?3Denabled=true', '_self');
+                    else
+                        window.open(item.value, '_self');
+                } else if (item.text === 'Comprar' || item.text === 'Like') {
+                    mostrarCompradoOLike(item.text, title);
+                }
         }
     });
 
