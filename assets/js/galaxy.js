@@ -35,8 +35,6 @@ const Graph = ForceGraph3D({
     window.setTimeout(() => {
         window.open(node.url + '?3Denabled=true&3Dtype=pointAndClick&interaction=orbitControls', '_self');
     }, 3000);
-
-    console.log(node);
 });
 
 window.addEventListener('resize', () => {
