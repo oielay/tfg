@@ -627,9 +627,9 @@ function addStatesLinks(link, item, title) {
                         window.open(item.value + '?3Denabled=true', '_self');
                     else
                         window.open(item.value, '_self');
-                } else if (item.text === 'Comprar' || item.text === 'Like') {
-                    mostrarCompradoOLike(item.text, title);
                 }
+            else
+                mostrarCompradoOLike(item.text, title);
         }
     });
 
