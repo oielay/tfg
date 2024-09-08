@@ -618,7 +618,7 @@ function addStatesLinks(link, item, title) {
             backgroundColor: new THREE.Color( 0xffffff ),
         },
         onSet: () => {
-            if (item.value !== 'No href')
+            if (item.value !== 'No href') {
                 if (item.value.includes('http')) {
                     const currentOrigin = window.location.origin;
                     const itemOrigin = new URL(item.value).origin;
@@ -628,8 +628,10 @@ function addStatesLinks(link, item, title) {
                     else
                         window.open(item.value, '_self');
                 }
-            else
+            }
+            else {
                 mostrarCompradoOLike(item.text, title);
+            }
         }
     });
 
